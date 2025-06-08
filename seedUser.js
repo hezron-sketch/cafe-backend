@@ -2,28 +2,61 @@ require('dotenv').config();
 const admin = require('./src/config/firebase');
 const mongoose = require('mongoose');
 const User = require('./src/models/User');
+const bcrypt = require('bcryptjs');
 
 const seedUsers = [
   {
-    email: 'admin@cafe.com',
+    email: 'mtuhalff@gmail.com',
     password: 'AdminPass123',
     name: 'Cafe Admin',
     phone: '+254700000001',
-    role: 'admin'
+    role: 'admin',
+    addresses: [{
+      label: 'work',
+      street: '123 Admin Street',
+      city: 'Nairobi',
+      postalCode: '00100',
+      coordinates: { lat: -1.2921, lng: 36.8219 },
+      isDefault: true
+    }]
   },
   {
     email: 'staff@cafe.com',
     password: 'StaffPass123',
     name: 'Cafe Staff',
     phone: '+254700000002',
-    role: 'staff'
+    role: 'staff',
+    addresses: [{
+      label: 'work',
+      street: '456 Staff Avenue',
+      city: 'Nairobi',
+      postalCode: '00100',
+      coordinates: { lat: -1.3021, lng: 36.8319 }
+    }]
   },
   {
     email: 'customer@cafe.com',
     password: 'CustomerPass123',
     name: 'Regular Customer',
     phone: '+254700000003',
-    role: 'customer'
+    role: 'customer',
+    addresses: [
+      {
+        label: 'home',
+        street: '789 Customer Lane',
+        city: 'Nairobi',
+        postalCode: '00100',
+        coordinates: { lat: -1.2821, lng: 36.8119 },
+        isDefault: true
+      },
+      {
+        label: 'work',
+        street: '321 Office Road',
+        city: 'Nairobi',
+        postalCode: '00200',
+        coordinates: { lat: -1.2721, lng: 36.8019 }
+      }
+    ]
   }
 ];
 
@@ -67,17 +100,28 @@ async function seedDatabase() {
           }
         }
 
-        // Create/update MongoDB user
+        // Hash the password for MongoDB storage
+        const hashedPassword = await bcrypt.hash(userData.password, 12);
+
+        // Create/update MongoDB user with all fields
         const user = await User.findOneAndUpdate(
           { email: userData.email },
           {
             firebaseUid: firebaseUser.uid,
             email: userData.email,
+            password: hashedPassword,
             name: userData.name,
             phone: userData.phone,
-            role: userData.role
+            role: userData.role,
+            addresses: userData.addresses,
+            passwordChangedAt: new Date(Date.now() - 1000),
+            isActive: true
           },
-          { upsert: true, new: true }
+          { 
+            upsert: true, 
+            new: true,
+            setDefaultsOnInsert: true 
+          }
         );
 
         // Set custom claims for role-based access

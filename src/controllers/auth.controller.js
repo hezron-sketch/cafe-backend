@@ -1,42 +1,57 @@
-const authService = require('../services/auth.service');
-
-exports.register = async (req, res, next) => {
-  try {
-    const { email, password, name, phone } = req.body;
-    
-    const result = await authService.registerUser({
-      email,
-      password,
-      name,
-      phone
-    });
-    
-    res.status(201).json(result);
-  } catch (error) {
-    next(error);
-  }
-};
+const admin = require('../config/firebase');
+const User = require('../models/User');
+const { generateToken } = require('../services/auth.service');
 
 exports.login = async (req, res, next) => {
+  res.json ({message: 'login successfull'})
   try {
     const { idToken } = req.body;
     
-    const result = await authService.loginUser(idToken);
-    
-    res.json(result);
-  } catch (error) {
-    next(error);
-  }
-};
+    // Validate the token exists
+    if (!idToken || typeof idToken !== 'string') {
+      return res.status(400).json({ 
+        message: 'ID token is required and must be a string' 
+      });
+    }
 
-exports.getMe = async (req, res, next) => {
-  try {
-    const user = await User.findOne({ firebaseUid: req.user.uid });
+    // Verify Firebase token
+    let decodedToken;
+    try {
+      decodedToken = await admin.auth().verifyIdToken(idToken);
+    } catch (error) {
+      console.error('Token verification error:', error.message);
+      return res.status(401).json({ 
+        message: 'Invalid or expired token',
+        error: error.message 
+      });
+    }
+
+    const firebaseUid = decodedToken.uid;
+    
+    // Get or create user in local DB
+    let user = await User.findOne({ firebaseUid });
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      const firebaseUser = await admin.auth().getUser(firebaseUid);
+      user = new User({
+        firebaseUid,
+        email: firebaseUser.email,
+        name: firebaseUser.displayName || ''
+      });
+      await user.save();
     }
     
-    res.json(user);
+    // Generate JWT
+    const token = await generateToken(firebaseUid);
+    
+    res.json({ 
+      token, 
+      user: {
+        id: user._id,
+        email: user.email,
+        name: user.name,
+        role: user.role
+      }
+    });
   } catch (error) {
     next(error);
   }
