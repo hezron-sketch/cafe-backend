@@ -6,10 +6,10 @@ const authMiddleware = require('../middlewares/auth.middleware');
 // const { loginSchema, registerSchema } = require('../validations/auth.validation');
 
 // Public routes
-// router.post('/register', authController.register);
+router.post('/register', authController.register);
 //router.post('/register', authMiddleware, authController.register);
-// router.post('/login', authController.login);
-router.post('/login', authMiddleware, authController.login);
+router.post('/login', authController.login);
+// router.post('/login', authMiddleware, authController.login);
 
 
 // Protected routes

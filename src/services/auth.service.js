@@ -20,30 +20,41 @@ const verifyFirebaseToken = async (idToken) => {
   }
 };
 
-const registerUser = async (userData) => {
-  // Create Firebase user
-  const firebaseUser = await admin.auth().createUser({
-    email: userData.email,
-    password: userData.password,
-    displayName: userData.name
-  });
-  
-  // Create local user
-  const user = new User({
-    firebaseUid: firebaseUser.uid,
-    email: userData.email,
-    name: userData.name,
-    phone: userData.phone
-  });
-  
-  await user.save();
-  
-  return {
-    token: generateToken(firebaseUser.uid),
-    user: user.toObject()
-  };
-};
+const registerUser = async ({ email, password, name, phone, role, addresses }) => {
+  let firebaseUser;
+    try {
+      // 1. Create Firebase user
+      const firebaseUser = await admin.auth().createUser({
+        email,
+        password,
+        displayName: name
+      });
 
+      // 2. Create MongoDB user
+      const user = new User({
+        firebaseUid: firebaseUser.uid,
+        email,
+        password, // Note: Only store hashed passwords in production
+        name,
+        phone,
+        role: role || 'customer',
+        addresses: addresses || []
+      });
+
+      await user.save();
+
+      // 3. Generate JWT
+      const token = generateToken(firebaseUser.uid);
+
+      return { token, user };
+    } catch (error) {
+      // Clean up Firebase user if MongoDB save fails
+      if (firebaseUser) {
+        await admin.auth().deleteUser(firebaseUser.uid);
+      }
+      throw error;
+    }
+  }
 const loginUser = async (idToken) => {
   // Verify Firebase token
   const decodedToken = await admin.auth().verifyIdToken(idToken);
