@@ -8,24 +8,22 @@ const roleMiddleware = require('../middlewares/role.middleware');
 router.get('/', menuController.getAllMenuItems);
 router.get('/:id', menuController.getMenuItemById);
 
-// Protected routes (admin only)
 router.post(
   '/',
-  authMiddleware,
+  authMiddleware.authenticate, // <-- use the function
   roleMiddleware('admin'),
   menuController.createMenuItem
 );
-
 router.patch(
   '/:id',
-  authMiddleware,
+  authMiddleware.authenticate,
   roleMiddleware('admin'),
   menuController.updateMenuItem
 );
 
 router.delete(
   '/:id',
-  authMiddleware,
+  authMiddleware.authenticate,
   roleMiddleware('admin'),
   menuController.deleteMenuItem
 );

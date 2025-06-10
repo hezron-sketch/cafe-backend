@@ -94,3 +94,15 @@ exports.updateOrderStatus = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.getAllOrders = async (req, res, next) => {
+  try {
+    const orders = await Order.find()
+      .sort({ createdAt: -1 })
+      .populate('user', 'name email phone');
+
+    res.json(orders);
+  } catch (error) {
+    next(error);
+  }
+};

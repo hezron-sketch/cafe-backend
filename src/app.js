@@ -21,6 +21,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/menu', menuRoutes);
 app.use('/api/orders', orderRoutes);
+console.log('Oders routes loaded');
 
 // Health check
 app.get('/api/health', (req, res) => {

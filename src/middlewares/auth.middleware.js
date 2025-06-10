@@ -17,15 +17,35 @@ const authenticate = async (req, res, next) => {
       return res.status(401).json({ message: 'User not registered' });
     }
     
+    // Attach complete user information
     req.user = {
       uid: decodedToken.uid,
-      role: user.role
+      role: user.role,
+      id: user._id,
+      email: user.email
     };
     
     next();
   } catch (error) {
-    res.status(401).json({ message: 'Unauthorized', error: error.message });
+    console.error('Authentication error:', error);
+    res.status(401).json({ 
+      message: 'Unauthorized', 
+      error: error.message 
+    });
   }
 };
 
-module.exports = authenticate;
+// Admin-specific middleware
+const isAdmin = (req, res, next) => {
+  if (req.user && req.user.role === 'admin') {
+    return next();
+  }
+  return res.status(403).json({ 
+    message: 'Forbidden: Admin access required' 
+  });
+};
+
+module.exports = {
+  authenticate,
+  isAdmin
+};
