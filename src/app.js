@@ -2,9 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const authRoutes = require('./routes/auth.routes');
-const menuRoutes = require('./routes/menu.routes');
-const orderRoutes = require('./routes/order.routes');
+const routes = require('./routes');
 
 const app = express();
 
@@ -17,11 +15,12 @@ mongoose.connect(process.env.MONGODB_URI)
 app.use(cors());
 app.use(express.json());
 
+// serving static files
+app.use(express.static('public'));
+
 // Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/menu', menuRoutes);
-app.use('/api/orders', orderRoutes);
-console.log('Oders routes loaded');
+app.use('/api', routes);
+console.log('Routes loaded');
 
 // Health check
 app.get('/api/health', (req, res) => {

@@ -130,9 +130,9 @@ userSchema.methods.createPasswordResetToken = function() {
 };
 
 // Query middleware to filter out inactive users
-userSchema.pre(/^find/, function(next) {
-  this.find({ isActive: { $ne: false } });
-  next();
-});
+// userSchema.pre(/^find/, function(next) {
+//   this.find({ isActive: { $ne: false } });
+//   next();
+// });
 
 module.exports = mongoose.model('User', userSchema);

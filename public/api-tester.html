@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Tester</title>
+    <style>
+        body {
+            background-color: rgb(48, 49, 49);
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            color: white;
+        }
+input {
+    background-color: #e1e1e16b;
+    border: 1px solid #d6d6d6;
+    height: 2rem;
+    width: 100%;
+    outline: none;
+    
+}
+
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .endpoint {
+            border: 2px solid #bebebe;
+            padding: 15px;
+            
+        }
+        button {
+            padding: 8px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            margin:  5px 0 5px 0;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        pre {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        input[type="text"] {
+            padding: 8px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .response {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>API Endpoint Tester</h1>
+    
+    <div class="container">
+        <!-- Register Section -->
+        <div class="endpoint">
+            <h2>Register</h2>
+            <div><label for="regEmail">Email:</label><input type="text" id="regEmail" placeholder="user@example.com"></div>
+            <div><label for="regPassword">Password:</label><input type="password" id="regPassword" placeholder="password"></div>
+            <div><label for="regName">Name:</label><input type="text" id="regName" placeholder="Full Name"></div>
+            <div><label for="regPhone">Phone:</label><input type="text" id="regPhone" placeholder="+254700000000"></div>
+            <div><label for="regRole">Role:</label><input type="text" id="regRole" placeholder="customer"></div>
+            <button onclick="register()">Register</button>
+            <div class="response" id="registerResponse"></div>
+        </div>
+        <!-- Login Section -->
+        <div class="endpoint">
+            <h2>Login</h2>
+            <div><label for="email">Email:</label><input type="text" id="email" placeholder="admin@example.com"></div>
+            <div><label for="password">Password:</label><input type="password" id="password" placeholder="password"></div>
+            <button onclick="login()">Login</button>
+            <div class="response" id="loginResponse"></div>
+        </div>
+        <!-- Get Me Section -->
+        <div class="endpoint">
+            <h2>Get Me</h2>
+            <div><label for="meToken">JWT Token (from login):</label><input type="text" id="meToken" placeholder="Paste token here"></div>
+            <button onclick="getMe()">Get Me</button>
+            <div class="response" id="meResponse"></div>
+        </div>
+        <!-- Get Orders Section (Admin) -->
+        <div class="endpoint">
+            <h2>Get Orders (Admin Only)</h2>
+            <div><label for="token">JWT Token (from login):</label><input type="text" id="token" placeholder="Paste token here"></div>
+            <button onclick="getOrders()">Get Orders</button>
+            <div class="response" id="ordersResponse"></div>
+        </div>
+        <!-- Get My Orders Section -->
+        <div class="endpoint">
+            <h2>Get My Orders</h2>
+            <div><label for="myOrdersToken">JWT Token (from login):</label><input type="text" id="myOrdersToken" placeholder="Paste token here"></div>
+            <button onclick="getMyOrders()">Get My Orders</button>
+            <div class="response" id="myOrdersResponse"></div>
+        </div>
+        <!-- Create Order Section -->
+        <div class="endpoint">
+            <h2>Create Order</h2>
+            <div><label for="createOrderToken">JWT Token (from login):</label><input type="text" id="createOrderToken" placeholder="Paste token here"></div>
+            <div><label for="orderBody">Order JSON Body:</label><textarea id="orderBody" rows="4" style="width:100%" placeholder='{"items":[], "serviceType":"delivery", ...}'></textarea></div>
+            <button onclick="createOrder()">Create Order</button>
+            <div class="response" id="createOrderResponse"></div>
+        </div>
+        <!-- Get Order by ID Section -->
+        <div class="endpoint">
+            <h2>Get Order by ID</h2>
+            <div><label for="orderId">Order ID:</label><input type="text" id="orderId" placeholder="Order ID"></div>
+            <div><label for="orderByIdToken">JWT Token (from login):</label><input type="text" id="orderByIdToken" placeholder="Paste token here"></div>
+            <button onclick="getOrderById()">Get Order by ID</button>
+            <div class="response" id="orderByIdResponse"></div>
+        </div>
+    </div>
+
+    <script>
+        let authToken = '';
+        
+        async function register() {
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            const name = document.getElementById('regName').value;
+            const phone = document.getElementById('regPhone').value;
+            const role = document.getElementById('regRole').value;
+            const responseElement = document.getElementById('registerResponse');
+            
+            try {
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password, name, phone, role })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    responseElement.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                } else {
+                    responseElement.innerHTML = `<pre style="color:red;">Error: ${data.message || 'Registration failed'}</pre>`;
+                }
+            } catch (error) {
+                responseElement.innerHTML = `<pre style="color:red;">Error: ${error.message}</pre>`;
+            }
+        }
+        
+        async function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const responseElement = document.getElementById('loginResponse');
+            
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    authToken = data.token;
+                    document.getElementById('token').value = data.token;
+                    document.getElementById('meToken').value = data.token;
+                    document.getElementById('myOrdersToken').value = data.token;
+                    document.getElementById('createOrderToken').value = data.token;
+                    document.getElementById('orderByIdToken').value = data.token;
+                    responseElement.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                } else {
+                    responseElement.innerHTML = `<pre style="color:red;">Error: ${data.message || 'Login failed'}</pre>`;
+                }
+            } catch (error) {
+                responseElement.innerHTML = `<pre style="color:red;">Error: ${error.message}</pre>`;
+            }
+        }
+        
+        async function getMe() {
+            const token = document.getElementById('meToken').value || authToken;
+            const responseElement = document.getElementById('meResponse');
+            
+            if (!token) {
+                responseElement.innerHTML = '<pre style="color:red;">Error: No token provided. Please login first.</pre>';
+                return;
+            }
+            responseElement.innerHTML = '<pre>Loading...</pre>';
+            try {
+                const response = await fetch('/api/auth/me', {
+                    method: 'GET',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    responseElement.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                } else {
+                    responseElement.innerHTML = `<pre style="color:red;">Error ${response.status}: ${data.message || 'Request failed'}</pre>`;
+                }
+            } catch (error) {
+                responseElement.innerHTML = `<pre style="color:red;">Error: ${error.message}</pre>`;
+            }
+        }
+        
+        async function getOrders() {
+            const token = document.getElementById('token').value || authToken;
+            const responseElement = document.getElementById('ordersResponse');
+            
+            if (!token) {
+                responseElement.innerHTML = '<pre style="color:red;">Error: No token provided. Please login first.</pre>';
+                return;
+            }
+            responseElement.innerHTML = '<pre>Loading...</pre>';
+            try {
+                const response = await fetch('/api/orders', {
+                    method: 'GET',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    responseElement.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                } else {
+                    responseElement.innerHTML = `<pre style="color:red;">Error ${response.status}: ${data.message || 'Request failed'}</pre>`;
+                }
+            } catch (error) {
+                responseElement.innerHTML = `<pre style="color:red;">Error: ${error.message}</pre>`;
+            }
+        }
+        
+        async function getMyOrders() {
+            const token = document.getElementById('myOrdersToken').value || authToken;
+            const responseElement = document.getElementById('myOrdersResponse');
+            
+            if (!token) {
+                responseElement.innerHTML = '<pre style="color:red;">Error: No token provided. Please login first.</pre>';
+                return;
+            }
+            responseElement.innerHTML = '<pre>Loading...</pre>';
+            try {
+                const response = await fetch('/api/orders/user', {
+                    method: 'GET',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    responseElement.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                } else {
+                    responseElement.innerHTML = `<pre style="color:red;">Error ${response.status}: ${data.message || 'Request failed'}</pre>`;
+                }
+            } catch (error) {
+                responseElement.innerHTML = `<pre style="color:red;">Error: ${error.message}</pre>`;
+            }
+        }
+        
+        async function createOrder() {
+            const token = document.getElementById('createOrderToken').value || authToken;
+            const orderBody = document.getElementById('orderBody').value;
+            const responseElement = document.getElementById('createOrderResponse');
+            
+            if (!token) {
+                responseElement.innerHTML = '<pre style="color:red;">Error: No token provided. Please login first.</pre>';
+                return;
+            }
+            responseElement.innerHTML = '<pre>Loading...</pre>';
+            let bodyObj;
+            try {
+                bodyObj = JSON.parse(orderBody);
+            } catch (e) {
+                responseElement.innerHTML = '<pre style="color:red;">Error: Invalid JSON body</pre>';
+                return;
+            }
+            try {
+                const response = await fetch('/api/orders', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(bodyObj)
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    responseElement.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                } else {
+                    responseElement.innerHTML = `<pre style="color:red;">Error ${response.status}: ${data.message || 'Request failed'}</pre>`;
+                }
+            } catch (error) {
+                responseElement.innerHTML = `<pre style="color:red;">Error: ${error.message}</pre>`;
+            }
+        }
+        
+        async function getOrderById() {
+            const token = document.getElementById('orderByIdToken').value || authToken;
+            const orderId = document.getElementById('orderId').value;
+            const responseElement = document.getElementById('orderByIdResponse');
+            
+            if (!token) {
+                responseElement.innerHTML = '<pre style="color:red;">Error: No token provided. Please login first.</pre>';
+                return;
+            }
+            if (!orderId) {
+                responseElement.innerHTML = '<pre style="color:red;">Error: No order ID provided.</pre>';
+                return;
+            }
+            responseElement.innerHTML = '<pre>Loading...</pre>';
+            try {
+                const response = await fetch(`/api/orders/${orderId}`, {
+                    method: 'GET',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    responseElement.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+                } else {
+                    responseElement.innerHTML = `<pre style="color:red;">Error ${response.status}: ${data.message || 'Request failed'}</pre>`;
+                }
+            } catch (error) {
+                responseElement.innerHTML = `<pre style="color:red;">Error: ${error.message}</pre>`;
+            }
+        }
+    </script>
+</body>
+</html>

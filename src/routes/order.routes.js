@@ -6,14 +6,15 @@ const roleMiddleware = require('../middlewares/role.middleware');
 
 // Customer routes
 router.post('/', authMiddleware.authenticate, orderController.createOrder);
-router.get('/', authMiddleware.authenticate,  orderController.getUserOrders);
-router.get('/:id', authMiddleware.authenticate,  orderController.getOrderById);
+router.get('/user', authMiddleware.authenticate, orderController.getUserOrders);
+router.get('/', authMiddleware.authenticate, orderController.getUserOrders);
+router.get('/:id', authMiddleware.authenticate, orderController.getOrderById);
 
 // Admin/Staff routes
 router.get(
   '/admin/all',
   authMiddleware.authenticate,
-  roleMiddleware(['admin']),
+  roleMiddleware('admin'),
   orderController.getAllOrders
 );
 

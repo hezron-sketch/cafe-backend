@@ -5,45 +5,34 @@ const authService = require('../services/auth.service');
 
 exports.login = async (req, res, next) => {
   try {
-    const { idToken } = req.body;
-    
-    // Validate the token exists
-    if (!idToken || typeof idToken !== 'string') {
-      return res.status(400).json({ 
-        message: 'ID token is required and must be a string' 
-      });
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ message: 'Email and password are required' });
     }
 
-    // Verify Firebase token
-    const decodedToken = await admin.auth().verifyIdToken(idToken);
-    const firebaseUid = decodedToken.uid;
-    
-    // Get or create user in local DB
-    let user = await User.findOne({ firebaseUid });
+    // Find user by email and select password
+    const user = await User.findOne({ email }).select('+password');
     if (!user) {
-      const firebaseUser = await admin.auth().getUser(firebaseUid);
-      user = new User({
-        firebaseUid,
-        email: firebaseUser.email,
-        name: firebaseUser.displayName || '',
-        role: 'customer' // Default role
-      });
-      await user.save();
+      return res.status(401).json({ message: 'Invalid email or password' });
     }
-    
-    // Generate JWT with role information
-    const token = await generateToken({
-      uid: firebaseUid,
-      role: user.role
-    });
-    
-    res.json({ 
-      token, 
+
+    // Check password
+    const isMatch = await user.correctPassword(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: 'Invalid email or password' });
+    }
+
+    // Generate JWT
+    const token = await generateToken(user._id, user.role);
+
+    res.json({
+      token,
       user: {
         id: user._id,
         email: user.email,
         name: user.name,
-        role: user.role // Make sure this is populated
+        role: user.role
       }
     });
   } catch (error) {
@@ -174,18 +163,15 @@ exports.getMe = async (req, res, next) => {
         message: 'Not authenticated'
       });
     }
-
-    const user = await User.findOne({ firebaseUid: req.user.uid })
+    const user = await User.findById(req.user.uid)
       .select('-__v -password')
       .populate('favorites', 'name price imageUrl');
-
     if (!user) {
       return res.status(404).json({
         success: false,
         message: 'User not found'
       });
     }
-
     res.status(200).json({
       success: true,
       data: user
