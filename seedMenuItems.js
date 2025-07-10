@@ -6,47 +6,48 @@ const sampleMenuItems = [
   {
     name: "Espresso",
     description: "Strong black coffee",
-    price: 3.50,
+    price: 3.5,
     category: "drink",
     dietaryTags: ["vegan"],
     preparationTime: 5,
-    imageUrl: "https://example.com/espresso.jpg"
+    imageUrl: "/public/images/food.jpg",
   },
   {
     name: "Cappuccino",
     description: "Espresso with steamed milk and foam",
-    price: 4.50,
+    price: 4.5,
     category: "drink",
     dietaryTags: ["vegetarian"],
     preparationTime: 7,
-    imageUrl: "https://example.com/cappuccino.jpg"
+    imageUrl: "https://example.com/cappuccino.jpg",
   },
   {
     name: "Avocado Toast",
     description: "Sourdough bread with mashed avocado and toppings",
-    price: 8.50,
+    price: 8.5,
     category: "main",
     dietaryTags: ["vegetarian", "vegan"],
     preparationTime: 10,
-    imageUrl: "https://example.com/avocado-toast.jpg"
+    imageUrl: "https://example.com/avocado-toast.jpg",
   },
   {
     name: "Chicken Caesar Salad",
-    description: "Romaine lettuce with grilled chicken, croutons and Caesar dressing",
-    price: 10.50,
+    description:
+      "Romaine lettuce with grilled chicken, croutons and Caesar dressing",
+    price: 10.5,
     category: "main",
     preparationTime: 12,
-    imageUrl: "https://example.com/caesar-salad.jpg"
+    imageUrl: "https://example.com/caesar-salad.jpg",
   },
   {
     name: "Chocolate Cake",
     description: "Rich chocolate cake with ganache",
-    price: 6.00,
+    price: 6.0,
     category: "dessert",
     dietaryTags: ["vegetarian"],
     isFeatured: true,
     preparationTime: 2,
-    imageUrl: "https://example.com/chocolate-cake.jpg"
+    imageUrl: "https://example.com/chocolate-cake.jpg",
   },
   {
     name: "Iced Latte",
@@ -55,8 +56,8 @@ const sampleMenuItems = [
     category: "drink",
     dietaryTags: ["vegetarian"],
     preparationTime: 5,
-    imageUrl: "https://example.com/iced-latte.jpg"
-  }
+    imageUrl: "https://example.com/iced-latte.jpg",
+  },
 ];
 
 const seedDatabase = async () => {

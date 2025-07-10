@@ -23,19 +23,22 @@ exports.login = async (req, res, next) => {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
-    // Generate JWT
-    const token = await generateToken(user._id, user.role);
+    console.log('User found:', user._id);
+    // Generate JWT with MongoDB _id
+    const token = generateToken(user._id.toString());
 
     res.json({
       token,
       user: {
-        id: user._id,
+        _id: user._id, // changed from id to _id
         email: user.email,
         name: user.name,
         role: user.role
-      }
+      },
+      message: 'Login successful' // added message field
     });
   } catch (error) {
+    console.error('Login error:', error);
     next(error);
   }
 };
@@ -126,7 +129,7 @@ exports.register = async (req, res, next) => {
 
     // Filter sensitive data from response
     const userResponse = {
-      id: result.user._id,
+      _id: result.user._id, // changed from id to _id
       email: result.user.email,
       name: result.user.name,
       phone: result.user.phone,
@@ -138,11 +141,11 @@ exports.register = async (req, res, next) => {
     res.status(201).json({
       success: true,
       token: result.token,
-      user: userResponse
+      user: userResponse,
+      message: 'Registration successful' // added message field
     });
   } catch (error) {
     console.error('Registration error:', error);
-    
     // Handle specific errors
     if (error.code === 'auth/email-already-exists') {
       return res.status(409).json({
@@ -150,7 +153,6 @@ exports.register = async (req, res, next) => {
         message: 'Email already in use'
       });
     }
-    
     next(error);
   }
 };
