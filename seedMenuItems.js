@@ -10,7 +10,7 @@ const sampleMenuItems = [
     category: "drink",
     dietaryTags: ["vegan"],
     preparationTime: 5,
-    imageUrl: "/public/images/food.jpg",
+    imageUrl: "food.jpg",
   },
   {
     name: "Cappuccino",
@@ -19,7 +19,7 @@ const sampleMenuItems = [
     category: "drink",
     dietaryTags: ["vegetarian"],
     preparationTime: 7,
-    imageUrl: "https://example.com/cappuccino.jpg",
+    imageUrl: "drink.jpg",
   },
   {
     name: "Avocado Toast",
@@ -28,7 +28,7 @@ const sampleMenuItems = [
     category: "main",
     dietaryTags: ["vegetarian", "vegan"],
     preparationTime: 10,
-    imageUrl: "https://example.com/avocado-toast.jpg",
+    imageUrl: "food.jpg",
   },
   {
     name: "Chicken Caesar Salad",
@@ -37,7 +37,7 @@ const sampleMenuItems = [
     price: 10.5,
     category: "main",
     preparationTime: 12,
-    imageUrl: "https://example.com/caesar-salad.jpg",
+    imageUrl: "food.jpg",
   },
   {
     name: "Chocolate Cake",
@@ -47,7 +47,7 @@ const sampleMenuItems = [
     dietaryTags: ["vegetarian"],
     isFeatured: true,
     preparationTime: 2,
-    imageUrl: "https://example.com/chocolate-cake.jpg",
+    imageUrl: "food.jpg",
   },
   {
     name: "Iced Latte",
@@ -56,7 +56,7 @@ const sampleMenuItems = [
     category: "drink",
     dietaryTags: ["vegetarian"],
     preparationTime: 5,
-    imageUrl: "https://example.com/iced-latte.jpg",
+    imageUrl: "drink.jpg",
   },
 ];
 

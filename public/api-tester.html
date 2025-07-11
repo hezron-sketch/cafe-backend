@@ -3,184 +3,373 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>API endpoints</title>
+    <title>Cafe Backend APIs</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-      body {
-        background-color: rgb(48, 49, 49);
-        font-family: Arial, sans-serif;
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 20px;
-        color: white;
+      :root {
+        --primary: #25ff80;
+        --primary-dark: #27ae60;
+        --bg: #191a1b;
+        --bg-card: #222324;
+        --bg-header: #191a1bcc;
+        --border: #2ecc71;
+        --text: #e3e3e3; 
+        --text-muted: #b2bec3;
+        --shadow: 0 1px 2px 0 rgba(44, 204, 113, 0.02);
+        --radius: 8px;
+        --transition: 0.15s cubic-bezier(.4,0,.2,1);
       }
-      input {
-        background-color: #e1e1e12a;
-        border: 1px solid #327234;
-        height: 2rem;
-        width: 100%;
-        outline: none;
-        color: rgb(199, 199, 199);
+      html, body, .container, .endpoint {
+        box-sizing: border-box;
+        overflow-x: hidden;
+        background-color: var(--bg);
       }
-
+      *, *::before, *::after {
+        box-sizing: inherit;
+      }
+      .header {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: var(--bg-header);
+        backdrop-filter: blur(6px);
+        box-shadow: none;
+        padding: 6px 0 2px 0;
+        text-align: center;
+      }
+      .header h1 {
+        margin: 0;
+        font-size: 3.08rem;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+        color: var(--primary);
+      }
+      .header p {
+        margin: 4px 0 0 0;
+        color: var(--text-muted);
+        font-size: 0.89rem;
+        font-weight: 400;
+      }
       .container {
+        max-width: 720px;
+        margin: 16px auto 0 auto;
+        padding: 0 2vw 16px 2vw;
         display: flex;
         flex-direction: column;
-        gap: 20px;
+        gap: 12px;
+        width: 100%;
+        overflow-x: hidden;
+        
       }
       .endpoint {
-        border: 2px solid #327234;
-        padding: 15px;
+        background: var(--bg-card);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        border: 1px solid rgb(103, 103, 103);
+        padding: 12px 10px 10px 10px;
+        transition: box-shadow var(--transition), border-color var(--transition);
+        position: relative;
+        max-width: 100%;
+        width: 100%;
+        overflow-x: hidden;
+      }
+      .endpoint:hover {
+        box-shadow: 0 2px 8px 0 rgba(44,204,113,0.06);
+        border-color: #559871;
+      }
+      .endpoint h2 {
+        margin-top: 0;
+        font-size: 0.99rem;
+        font-weight: 600;
+        color: var(--primary);
+        letter-spacing: -0.2px;
+      }
+      /* Method color variables */
+      :root {
+        --get-bg: #1d2b22;
+        --get-border: #27ae60;
+        --post-bg: #1d2530;
+        --post-border: #2980ef;
+        --put-bg: #2b241d;
+        --put-border: #f39c12;
+        --delete-bg: #2b1d1d;
+        --delete-border: #e74c3c;
+        --patch-bg: #241d2b;
+        --patch-border: #8e44ad;
+        --other-bg: #232324;
+        --other-border: #7f8c8d;
+      }
+      .doc-block {
+        background: #1a1b1c;
+        border-left: 2px solid var(--primary);
+        padding: 5px 10px;
+        margin-bottom: 7px;
+        border-radius: 4px;
+        font-size: 0.91rem;
+        color: var(--text-muted);
+        box-shadow: none;
+      }
+      .doc-block-get {
+        background: var(--get-bg);
+        border-left: 3px solid var(--get-border);
+      }
+      .doc-block-post {
+        background: var(--post-bg);
+        border-left: 3px solid var(--post-border);
+      }
+      .doc-block-put {
+        background: var(--put-bg);
+        border-left: 3px solid var(--put-border);
+      }
+      .doc-block-delete {
+        background: var(--delete-bg);
+        border-left: 3px solid var(--delete-border);
+      }
+      .doc-block-patch {
+        background: var(--patch-bg);
+        border-left: 3px solid var(--patch-border);
+      }
+      .doc-block-other {
+        background: var(--other-bg);
+        border-left: 3px solid var(--other-border);
+      }
+      .doc-block b, .doc-block code {
+        color: var(--primary);
+        font-weight: 600;
+        font-size: 1em;
+      }
+      .doc-block span {
+        color: #b8ffdb;
+        font-size: 0.93em;
+      }
+      label {
+        display: block;
+        margin-bottom: 2px;
+        font-weight: 500;
+        color: var(--text-muted);
+        font-size: 0.93rem;
+      }
+      input, textarea, button {
+        background: #4a574a;
+        border: 1px solid #232526;
+        border-radius: 4px;
+        color: var(--text);
+        font-size: 0.93rem;
+        padding: 6px 8px;
+        margin-bottom: 7px;
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        outline: none;
+        transition: border-color var(--transition), box-shadow var(--transition);
+        box-shadow: none;
+      }
+      input:focus, textarea:focus {
+        border-color: var(--primary-dark);
+        box-shadow: 0 1px 4px 0 rgba(44,204,113,0.04);
+      }
+      textarea {
+        min-height: 44px;
+        resize: vertical;
       }
       button {
-        padding: 8px 15px;
-        background-color: #4caf50;
-        color: white;
+        background: var(--primary);
+        color: #144400;
         border: none;
-        cursor: pointer;
-        margin: 5px 0 5px 0;
-      }
-      button:hover {
-        background-color: #45a049;
-      }
-      pre {
-        background-color: #f5f5f5;
-        padding: 10px;
         border-radius: 4px;
-        overflow-x: auto;
+        padding: 7px 16px;
+        font-size: 0.93rem;
+        font-weight: 800;
+        cursor: pointer;
+        box-shadow: none;
+        transition: background var(--transition), transform var(--transition);
+        margin: 4px 0 0 0;
+        letter-spacing: 0.1px;
       }
-      input[type="text"] {
-        padding: 8px;
-        width: 100%;
-        box-sizing: border-box;
+      button:hover, button:focus {
+        background: var(--primary-dark);
+        transform: translateY(-1px) scale(1.01);
       }
       .response {
-        color: black;
-        margin-top: 10px;
-        background-color: #19281a;
+        color: #fff;
+        margin-top: 5px;
+        background: #1a1d1e;
+        border-radius: 4px;
+        padding: 6px 8px;
+        font-size: 0.91rem;
+        min-height: 18px;
+        box-shadow: none;
+        word-break: break-all;
+        max-width: 100%;
+        overflow-x: auto;
+      }
+      pre {
+        background: transparent;
+        color: #b8ffdb;
+        padding: 0;
+        margin: 0;
+        border: none;
+        font-size: 0.91rem;
+        font-family: 'Fira Mono', 'Consolas', 'Menlo', monospace;
+        white-space: pre-wrap;
+        word-break: break-all;
+      }
+      @media (max-width: 600px) {
+        .container {
+          padding: 0 2vw 10px 2vw;
+        }
+        .endpoint {
+          padding: 7px 2vw 7px 2vw;
+        }
+        .header {
+          padding: 2px 0 1px 0;
+        }
+        .header h1 {
+          font-size: 0.93rem;
+        }
       }
     </style>
   </head>
   <body>
-    <h1>API Endpoints</h1>
-
+    <div class="header">
+      <h1>Cafe Backend APIs</h1>
+      <p>Fast & Reliable backend API</p>
+    </div>
     <div class="container">
       <!-- Register Section -->
       <div class="endpoint">
+        <!-- Doc block -->
         <h2>Register</h2>
-        <div>
-          <label for="regEmail">Email:</label
-          ><input type="text" id="regEmail" placeholder="user@example.com" />
+        <div class="doc-block doc-block-post">
+          <b>POST</b> <code>/api/auth/register</code> &mdash; <b>Auth:</b> None<br/>
+          <span>Register a new user (customer, admin, etc.)</span>
         </div>
         <div>
-          <label for="regPassword">Password:</label
-          ><input type="password" id="regPassword" placeholder="password" />
+          <label for="regEmail">Email:</label>
+          <input type="text" id="regEmail" placeholder="user@example.com" />
         </div>
         <div>
-          <label for="regName">Name:</label
-          ><input type="text" id="regName" placeholder="Full Name" />
+          <label for="regPassword">Password:</label>
+          <input type="password" id="regPassword" placeholder="password" />
         </div>
         <div>
-          <label for="regPhone">Phone:</label
-          ><input type="text" id="regPhone" placeholder="+254700000000" />
+          <label for="regName">Name:</label>
+          <input type="text" id="regName" placeholder="Full Name" />
         </div>
         <div>
-          <label for="regRole">Role:</label
-          ><input type="text" id="regRole" placeholder="customer" />
+          <label for="regPhone">Phone:</label>
+          <input type="text" id="regPhone" placeholder="+254700000000" />
+        </div>
+        <div>
+          <label for="regRole">Role:</label>
+          <input type="text" id="regRole" placeholder="customer" />
         </div>
         <button onclick="register()">Register</button>
         <div class="response" id="registerResponse"></div>
       </div>
       <!-- Login Section -->
       <div class="endpoint">
+        <!-- Doc block -->
         <h2>Login</h2>
-        <div>
-          <label for="email">Email:</label
-          ><input type="text" id="email" placeholder="admin@example.com" />
+        <div class="doc-block doc-block-post">
+          <b>POST</b> <code>/api/auth/login</code> &mdash; <b>Auth:</b> None<br/>
+          <span>Login and receive JWT token</span>
         </div>
         <div>
-          <label for="password">Password:</label
-          ><input type="password" id="password" placeholder="password" />
+          <label for="email">Email:</label>
+          <input type="text" id="email" placeholder="admin@example.com" />
+        </div>
+        <div>
+          <label for="password">Password:</label>
+          <input type="password" id="password" placeholder="password" />
         </div>
         <button onclick="login()">Login</button>
         <div class="response" id="loginResponse"></div>
       </div>
       <!-- Get Me Section -->
       <div class="endpoint">
+        <!-- Doc block -->
         <h2>Get Me</h2>
+        <div class="doc-block doc-block-get">
+          <b>GET</b> <code>/api/auth/me</code> &mdash; <b>Auth:</b> JWT<br/>
+          <span>Get current user profile</span>
+        </div>
         <div>
-          <label for="meToken">JWT Token (from login):</label
-          ><input type="text" id="meToken" placeholder="Paste token here" />
+          <label for="meToken">JWT Token (from login):</label>
+          <input type="text" id="meToken" placeholder="Paste token here" />
         </div>
         <button onclick="getMe()">Get Me</button>
         <div class="response" id="meResponse"></div>
       </div>
       <!-- Get Orders Section (Admin) -->
       <div class="endpoint">
+        <!-- Doc block -->
         <h2>Get Orders (Admin Only)</h2>
+        <div class="doc-block doc-block-get">
+          <b>GET</b> <code>/api/orders</code> &mdash; <b>Auth:</b> Admin JWT<br/>
+          <span>Get all orders (admin only)</span>
+        </div>
         <div>
-          <label for="token">JWT Token (from login):</label
-          ><input type="text" id="token" placeholder="Paste token here" />
+          <label for="token">JWT Token (from login):</label>
+          <input type="text" id="token" placeholder="Paste token here" />
         </div>
         <button onclick="getOrders()">Get Orders</button>
         <div class="response" id="ordersResponse"></div>
       </div>
       <!-- Get My Orders Section -->
       <div class="endpoint">
+        <!-- Doc block -->
         <h2>Get My Orders</h2>
+        <div class="doc-block doc-block-get">
+          <b>GET</b> <code>/api/orders/user</code> &mdash; <b>Auth:</b> JWT<br/>
+          <span>Get orders for the logged-in user</span>
+        </div>
         <div>
-          <label for="myOrdersToken">JWT Token (from login):</label
-          ><input
-            type="text"
-            id="myOrdersToken"
-            placeholder="Paste token here"
-          />
+          <label for="myOrdersToken">JWT Token (from login):</label>
+          <input type="text" id="myOrdersToken" placeholder="Paste token here" />
         </div>
         <button onclick="getMyOrders()">Get My Orders</button>
         <div class="response" id="myOrdersResponse"></div>
       </div>
       <!-- Create Order Section -->
       <div class="endpoint">
+        <!-- Doc block -->
         <h2>Create Order</h2>
-        <div>
-          <label for="createOrderToken">JWT Token (from login):</label
-          ><input
-            type="text"
-            id="createOrderToken"
-            placeholder="Paste token here"
-          />
+        <div class="doc-block doc-block-post">
+          <b>POST</b> <code>/api/orders</code> &mdash; <b>Auth:</b> JWT<br/>
+          <span>Create a new order</span>
         </div>
         <div>
-          <label for="orderBody">Order JSON Body:</label
-          ><textarea
-            id="orderBody"
-            rows="4"
-            style="width: 100%"
-            placeholder='{"items":[], "serviceType":"delivery", ...}'
-          ></textarea>
+          <label for="createOrderToken">JWT Token (from login):</label>
+          <input type="text" id="createOrderToken" placeholder="Paste token here" />
+        </div>
+        <div>
+          <label for="orderBody">Order JSON Body:</label>
+          <textarea id="orderBody" rows="4" style="width: 100%" placeholder='{"items":[], "serviceType":"delivery", ...}'></textarea>
         </div>
         <button onclick="createOrder()">Create Order</button>
         <div class="response" id="createOrderResponse"></div>
       </div>
       <!-- Get Order by ID Section -->
       <div class="endpoint">
+        <!-- Doc block -->
         <h2>Get Order by ID</h2>
-        <div>
-          <label for="orderId">Order ID:</label
-          ><input type="text" id="orderId" placeholder="Order ID" />
+        <div class="doc-block doc-block-get">
+          <b>GET</b> <code>/api/orders/:id</code> &mdash; <b>Auth:</b> JWT<br/>
+          <span>Get order details by order ID</span>
         </div>
         <div>
-          <label for="orderByIdToken">JWT Token (from login):</label
-          ><input
-            type="text"
-            id="orderByIdToken"
-            placeholder="Paste token here"
-          />
+          <label for="orderId">Order ID:</label>
+          <input type="text" id="orderId" placeholder="Order ID" />
+        </div>
+        <div>
+          <label for="orderByIdToken">JWT Token (from login):</label>
+          <input type="text" id="orderByIdToken" placeholder="Paste token here" />
         </div>
         <button onclick="getOrderById()">Get Order by ID</button>
         <div class="response" id="orderByIdResponse"></div>
       </div>
     </div>
-
     <script>
       let authToken = "";
 
