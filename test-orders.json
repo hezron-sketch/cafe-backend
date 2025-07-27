@@ -1,0 +1,185 @@
+{
+  "sample_orders": [
+    {
+      "name": "Basic Coffee Order",
+      "description": "Simple order with one drink item",
+      "data": {
+        "items": [
+          {
+            "menuItemId": "507f1f77bcf86cd799439011",
+            "name": "Espresso",
+            "price": 3.5,
+            "quantity": 1,
+            "specialInstructions": "Extra hot"
+          }
+        ],
+        "totalAmount": 3.5,
+        "deliveryFee": 0,
+        "serviceType": "takeaway",
+        "paymentMethod": "cash",
+        "paymentStatus": "pending"
+      }
+    },
+    {
+      "name": "Full Meal Order",
+      "description": "Complete meal with multiple items",
+      "data": {
+        "items": [
+          {
+            "menuItemId": "507f1f77bcf86cd799439012",
+            "name": "Cappuccino",
+            "price": 4.5,
+            "quantity": 2,
+            "specialInstructions": "One with extra foam, one regular"
+          },
+          {
+            "menuItemId": "507f1f77bcf86cd799439013",
+            "name": "Avocado Toast",
+            "price": 8.5,
+            "quantity": 1,
+            "specialInstructions": "No salt, extra avocado"
+          },
+          {
+            "menuItemId": "507f1f77bcf86cd799439014",
+            "name": "Chocolate Cake",
+            "price": 6.0,
+            "quantity": 1,
+            "specialInstructions": "Extra chocolate sauce"
+          }
+        ],
+        "totalAmount": 23.5,
+        "deliveryFee": 2.0,
+        "serviceType": "delivery",
+        "deliveryAddress": {
+          "street": "123 Main Street",
+          "city": "Nairobi",
+          "coordinates": {
+            "lat": -1.2921,
+            "lng": 36.8219
+          }
+        },
+        "paymentMethod": "mpesa",
+        "paymentStatus": "pending"
+      }
+    },
+    {
+      "name": "Dine-in Order",
+      "description": "Order for dine-in service",
+      "data": {
+        "items": [
+          {
+            "menuItemId": "507f1f77bcf86cd799439015",
+            "name": "Chicken Caesar Salad",
+            "price": 10.5,
+            "quantity": 1,
+            "specialInstructions": "Dressing on the side"
+          },
+          {
+            "menuItemId": "507f1f77bcf86cd799439016",
+            "name": "Iced Latte",
+            "price": 4.75,
+            "quantity": 1,
+            "specialInstructions": "Light ice"
+          }
+        ],
+        "totalAmount": 15.25,
+        "deliveryFee": 0,
+        "serviceType": "dine-in",
+        "paymentMethod": "card",
+        "paymentStatus": "pending"
+      }
+    },
+    {
+      "name": "Large Group Order",
+      "description": "Order with multiple items and promo code",
+      "data": {
+        "items": [
+          {
+            "menuItemId": "507f1f77bcf86cd799439011",
+            "name": "Espresso",
+            "price": 3.5,
+            "quantity": 3,
+            "specialInstructions": "All extra strong"
+          },
+          {
+            "menuItemId": "507f1f77bcf86cd799439012",
+            "name": "Cappuccino",
+            "price": 4.5,
+            "quantity": 2,
+            "specialInstructions": "One decaf, one regular"
+          },
+          {
+            "menuItemId": "507f1f77bcf86cd799439013",
+            "name": "Avocado Toast",
+            "price": 8.5,
+            "quantity": 2,
+            "specialInstructions": "Extra crispy bread"
+          },
+          {
+            "menuItemId": "507f1f77bcf86cd799439014",
+            "name": "Chocolate Cake",
+            "price": 6.0,
+            "quantity": 1,
+            "specialInstructions": "Extra whipped cream"
+          }
+        ],
+        "totalAmount": 39.5,
+        "deliveryFee": 3.0,
+        "serviceType": "delivery",
+        "deliveryAddress": {
+          "street": "456 Oak Avenue",
+          "city": "Nairobi",
+          "coordinates": {
+            "lat": -1.3000,
+            "lng": 36.8000
+          }
+        },
+        "paymentMethod": "mpesa",
+        "paymentStatus": "pending",
+        "promoCode": "SAVE10",
+        "discountApplied": 3.95
+      }
+    },
+    {
+      "name": "Minimal Order",
+      "description": "Simplest possible order",
+      "data": {
+        "items": [
+          {
+            "menuItemId": "507f1f77bcf86cd799439011",
+            "name": "Espresso",
+            "price": 3.5,
+            "quantity": 1
+          }
+        ],
+        "totalAmount": 3.5,
+        "serviceType": "takeaway",
+        "paymentMethod": "cash"
+      }
+    }
+  ],
+  "notes": {
+    "menuItemId": "You need to replace the menuItemId values with actual ObjectIds from your database. You can get these by running a GET request to /api/menu first.",
+    "authentication": "Make sure to include a valid JWT token in the Authorization header: 'Bearer YOUR_JWT_TOKEN'",
+    "required_fields": [
+      "items (array of order items)",
+      "totalAmount (number)",
+      "serviceType (delivery|takeaway|dine-in)",
+      "paymentMethod (mpesa|card|cash)"
+    ],
+    "optional_fields": [
+      "deliveryFee (number, default: 0)",
+      "deliveryAddress (object, required for delivery orders)",
+      "paymentStatus (pending|completed|failed, default: pending)",
+      "promoCode (string)",
+      "discountApplied (number, default: 0)"
+    ],
+    "item_structure": {
+      "menuItemId": "ObjectId from MenuItem collection",
+      "name": "string",
+      "price": "number",
+      "quantity": "number (min: 1)",
+      "specialInstructions": "string (optional)"
+    }
+  }
+} 

@@ -1,5 +1,5 @@
 require('dotenv').config();
-const admin = require('./src/config/firebase');
+const { admin } = require('./src/config/firebase');
 const mongoose = require('mongoose');
 const User = require('./src/models/User');
 const bcrypt = require('bcryptjs');

@@ -1,21 +1,5 @@
 const authService = require('../services/auth.service');
 
-exports.register = async (req, res, next) => {
-  try {
-    const { email, password, name, phone } = req.body;
-    
-    const result = await authService.registerUser({
-      email,
-      password,
-      name,
-      phone
-    });
-    
-    res.status(201).json(result);
-  } catch (error) {
-    next(error);
-  }
-};
 
 exports.login = async (req, res, next) => {
     res.json ({message: 'login successfull'})

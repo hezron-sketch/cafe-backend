@@ -1,0 +1,151 @@
+{
+  "registration_flow": {
+    "step_1_register": {
+      "method": "POST",
+      "url": "/api/auth/register",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "body": {
+        "email": "user@example.com",
+        "password": "password123",
+        "name": "John Doe",
+        "phone": "+254700000000",
+        "role": "customer",
+        "addresses": [
+          {
+            "label": "home",
+            "street": "123 Main Street",
+            "city": "Nairobi",
+            "postalCode": "00100",
+            "coordinates": {
+              "lat": -1.2921,
+              "lng": 36.8219
+            },
+            "isDefault": true
+          }
+        ]
+      },
+      "expected_response": {
+        "success": true,
+        "token": "jwt_token_here",
+        "user": {
+          "_id": "user_id_here",
+          "email": "user@example.com",
+          "name": "John Doe",
+          "phone": "+254700000000",
+          "phoneVerified": false,
+          "emailVerified": false
+        },
+        "message": "Registration successful. Please verify your phone number and email."
+      }
+    },
+    "step_2_send_phone_otp": {
+      "method": "POST",
+      "url": "/api/auth/send-phone-otp",
+      "headers": {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer jwt_token_from_step_1"
+      },
+      "body": {},
+      "expected_response": {
+        "success": true,
+        "message": "OTP sent successfully"
+      },
+      "notes": "Check console logs for the OTP code (for development)"
+    },
+    "step_3_verify_phone_otp": {
+      "method": "POST",
+      "url": "/api/auth/verify-phone-otp",
+      "headers": {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer jwt_token_from_step_1"
+      },
+      "body": {
+        "otp": "123456"
+      },
+      "expected_response": {
+        "success": true,
+        "message": "Phone number verified successfully"
+      },
+      "notes": "Use the OTP code from console logs"
+    },
+    "step_4_send_email_otp": {
+      "method": "POST",
+      "url": "/api/auth/send-email-otp",
+      "headers": {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer jwt_token_from_step_1"
+      },
+      "body": {},
+      "expected_response": {
+        "success": true,
+        "message": "OTP sent successfully"
+      },
+      "notes": "Check email for OTP code"
+    },
+    "step_5_verify_email_otp": {
+      "method": "POST",
+      "url": "/api/auth/verify-email-otp",
+      "headers": {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer jwt_token_from_step_1"
+      },
+      "body": {
+        "otp": "123456"
+      },
+      "expected_response": {
+        "success": true,
+        "message": "Email verified successfully"
+      },
+      "notes": "Use the OTP code from email"
+    }
+  },
+  "environment_variables": {
+    "required": [
+      "MONGODB_URI",
+      "JWT_SECRET",
+      "EMAIL_USER",
+      "EMAIL_PASSWORD",
+      "EMAIL_SERVICE"
+    ],
+    "optional": [
+      "FRONTEND_URL",
+      "TWILIO_ACCOUNT_SID",
+      "TWILIO_AUTH_TOKEN",
+      "TWILIO_PHONE_NUMBER",
+      "AFRICASTALKING_API_KEY",
+      "AFRICASTALKING_USERNAME"
+    ]
+  },
+  "email_configuration": {
+    "gmail": {
+      "EMAIL_SERVICE": "gmail",
+      "EMAIL_USER": "your-email@gmail.com",
+      "EMAIL_PASSWORD": "your-app-password"
+    },
+    "outlook": {
+      "EMAIL_SERVICE": "outlook",
+      "EMAIL_USER": "your-email@outlook.com",
+      "EMAIL_PASSWORD": "your-password"
+    }
+  },
+  "sms_integration": {
+    "twilio": {
+      "TWILIO_ACCOUNT_SID": "your_account_sid",
+      "TWILIO_AUTH_TOKEN": "your_auth_token",
+      "TWILIO_PHONE_NUMBER": "+1234567890"
+    },
+    "africas_talking": {
+      "AFRICASTALKING_API_KEY": "your_api_key",
+      "AFRICASTALKING_USERNAME": "your_username"
+    }
+  },
+  "notes": {
+    "development": "In development mode, OTP codes are logged to console instead of being sent via SMS",
+    "email_setup": "For Gmail, use App Password instead of regular password",
+    "sms_setup": "Uncomment the SMS service code in sms.service.js and configure your preferred provider",
+    "security": "OTP codes expire after 10 minutes for security",
+    "testing": "Use the test-orders.json file to test order creation after verification"
+  }
+} 

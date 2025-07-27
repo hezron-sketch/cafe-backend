@@ -40,6 +40,23 @@ const userSchema = new Schema({
       message: props => `${props.value} is not a valid phone number!`
     }
   },
+  // OTP Verification fields
+  phoneVerified: {
+    type: Boolean,
+    default: false
+  },
+  phoneOtp: {
+    code: String,
+    expiresAt: Date
+  },
+  emailVerified: {
+    type: Boolean,
+    default: false
+  },
+  emailOtp: {
+    code: String,
+    expiresAt: Date
+  },
   role: { 
     type: String, 
     enum: ['customer', 'admin', 'staff'], 
@@ -127,6 +144,58 @@ userSchema.methods.createPasswordResetToken = function() {
   this.passwordResetExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
   
   return resetToken;
+};
+
+// Instance method to generate OTP
+userSchema.methods.generateOtp = function(type = 'phone') {
+  const otp = Math.floor(100000 + Math.random() * 900000).toString(); // 6-digit OTP
+  const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+  
+  if (type === 'phone') {
+    this.phoneOtp = {
+      code: otp,
+      expiresAt: expiresAt
+    };
+  } else if (type === 'email') {
+    this.emailOtp = {
+      code: otp,
+      expiresAt: expiresAt
+    };
+  }
+  
+  return otp;
+};
+
+// Instance method to verify OTP
+userSchema.methods.verifyOtp = function(code, type = 'phone') {
+  if (type === 'phone') {
+    if (!this.phoneOtp || !this.phoneOtp.code || !this.phoneOtp.expiresAt) {
+      return false;
+    }
+    if (new Date() > this.phoneOtp.expiresAt) {
+      return false;
+    }
+    if (this.phoneOtp.code !== code) {
+      return false;
+    }
+    this.phoneVerified = true;
+    this.phoneOtp = undefined;
+    return true;
+  } else if (type === 'email') {
+    if (!this.emailOtp || !this.emailOtp.code || !this.emailOtp.expiresAt) {
+      return false;
+    }
+    if (new Date() > this.emailOtp.expiresAt) {
+      return false;
+    }
+    if (this.emailOtp.code !== code) {
+      return false;
+    }
+    this.emailVerified = true;
+    this.emailOtp = undefined;
+    return true;
+  }
+  return false;
 };
 
 // Query middleware to filter out inactive users

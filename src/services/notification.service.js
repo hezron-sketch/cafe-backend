@@ -1,4 +1,4 @@
-const admin = require('../config/firebase');
+const { admin } = require('../config/firebase');
 const User = require('../models/User');
 
 const sendOrderNotification = async (userId, orderId, status = 'confirmed') => {
