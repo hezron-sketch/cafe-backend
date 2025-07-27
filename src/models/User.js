@@ -4,11 +4,6 @@ const bcrypt = require('bcryptjs');
 const validator = require('validator');
 
 const userSchema = new Schema({
-  firebaseUid: { 
-    type: String, 
-    required: true, 
-    unique: true 
-  },
   email: { 
     type: String, 
     required: true, 
@@ -17,10 +12,7 @@ const userSchema = new Schema({
   },
   password: {
     type: String,
-    required: function() {
-      // Only require password for non-Firebase local accounts
-      return !this.firebaseUid;
-    },
+    required: true,
     minlength: 8,
     select: false // Never return password in queries
   },
@@ -29,7 +21,8 @@ const userSchema = new Schema({
   passwordResetExpires: Date,
   name: { 
     type: String,
-    trim: true
+    trim: true,
+    required: true
   },
   phone: { 
     type: String,
@@ -197,11 +190,5 @@ userSchema.methods.verifyOtp = function(code, type = 'phone') {
   }
   return false;
 };
-
-// Query middleware to filter out inactive users
-// userSchema.pre(/^find/, function(next) {
-//   this.find({ isActive: { $ne: false } });
-//   next();
-// });
 
 module.exports = mongoose.model('User', userSchema);

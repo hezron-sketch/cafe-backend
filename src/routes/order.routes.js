@@ -7,17 +7,22 @@ const roleMiddleware = require('../middlewares/role.middleware');
 // Customer routes
 router.post('/', authMiddleware.authenticate, orderController.createOrder);
 router.get('/user', authMiddleware.authenticate, orderController.getUserOrders);
-router.get('/', authMiddleware.authenticate, orderController.getUserOrders);
 router.get('/:id', authMiddleware.authenticate, orderController.getOrderById);
 router.post('/:id/cancel', authMiddleware.authenticate, orderController.cancelOrder);
 router.post('/:id/rate', authMiddleware.authenticate, orderController.rateOrder);
 
-// Admin/Staff routes
+// Admin/Staff routes - Get all orders (admin only)
 router.get(
-  '/admin/all',
+  '/',
   authMiddleware.authenticate,
-  roleMiddleware(['admin', 'staff']),
-  orderController.getAllOrders
+  (req, res, next) => {
+    // If user is admin, get all orders, otherwise get user's orders
+    if (req.user.role === 'admin') {
+      return orderController.getAllOrders(req, res, next);
+    } else {
+      return orderController.getUserOrders(req, res, next);
+    }
+  }
 );
 
 router.get(

@@ -1,6 +1,5 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-const { admin, testFirebaseConnection } = require('../config/firebase');
 const { sendWelcomeEmail, sendOtpEmail } = require('./email.service');
 const { sendSmsOtp, sendSmsWelcome } = require('./sms.service');
 
@@ -10,40 +9,18 @@ const generateToken = (uid) => {
   });
 };
 
-const verifyFirebaseToken = async (idToken) => {
-  try {
-    if (!idToken) {
-      throw new Error('No ID token provided');
-    }
-    return await admin.auth().verifyIdToken(idToken);
-  } catch (error) {
-    console.error('Firebase token verification failed:', error.message);
-    throw error;
-  }
-};
-
 const registerUser = async ({ email, password, name, phone, role, addresses }) => {
-  let firebaseUser = null;
-  
   try {
-    // Test Firebase connection first
-    const isConnected = await testFirebaseConnection();
-    if (!isConnected) {
-      throw new Error('Firebase connection failed');
+    // Check if user already exists
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      throw new Error('Email already in use');
     }
-    
-    // 1. Create Firebase user
-    firebaseUser = await admin.auth().createUser({
-      email,
-      password,
-      displayName: name
-    });
 
-    // 2. Create MongoDB user
+    // Create MongoDB user
     const user = new User({
-      firebaseUid: firebaseUser.uid,
       email,
-      password, // Note: Only store hashed passwords in production
+      password, // Will be hashed by the pre-save middleware
       name,
       phone,
       role: role || 'customer',
@@ -52,29 +29,44 @@ const registerUser = async ({ email, password, name, phone, role, addresses }) =
 
     await user.save();
 
-    // 3. Send welcome email
+    // Send welcome email
     await sendWelcomeEmail(user);
 
-    // 4. Send welcome SMS if phone number is provided
+    // Send welcome SMS if phone number is provided
     if (phone) {
       await sendSmsWelcome(phone, name);
     }
 
-    // 5. Generate JWT
-    const token = generateToken(firebaseUser.uid);
+    // Generate JWT using user's MongoDB _id
+    const token = generateToken(user._id.toString());
 
     return { token, user };
   } catch (error) {
     console.error('Registration error:', error);
-    
-    // Clean up Firebase user if MongoDB save fails
-    if (firebaseUser && firebaseUser.uid) {
-      try {
-        await admin.auth().deleteUser(firebaseUser.uid);
-      } catch (deleteError) {
-        console.error('Failed to delete Firebase user:', deleteError.message);
-      }
+    throw error;
+  }
+};
+
+const loginUser = async ({ email, password }) => {
+  try {
+    // Find user by email and select password
+    const user = await User.findOne({ email }).select('+password');
+    if (!user) {
+      throw new Error('Invalid email or password');
     }
+
+    // Check password
+    const isMatch = await user.correctPassword(password, user.password);
+    if (!isMatch) {
+      throw new Error('Invalid email or password');
+    }
+
+    // Generate JWT using user's MongoDB _id
+    const token = generateToken(user._id.toString());
+
+    return { token, user };
+  } catch (error) {
+    console.error('Login error:', error);
     throw error;
   }
 };
@@ -165,41 +157,12 @@ const verifyEmailOtp = async (userId, otp) => {
   }
 };
 
-const loginUser = async (idToken) => {
-  try {
-    // Verify Firebase token
-    const decodedToken = await admin.auth().verifyIdToken(idToken);
-    const firebaseUid = decodedToken.uid;
-    
-    // Get or create user
-    let user = await User.findOne({ firebaseUid });
-    if (!user) {
-      const firebaseUser = await admin.auth().getUser(firebaseUid);
-      user = new User({
-        firebaseUid,
-        email: firebaseUser.email,
-        name: firebaseUser.displayName || ''
-      });
-      await user.save();
-    }
-    
-    return {
-      token: generateToken(firebaseUid),
-      user: user.toObject()
-    };
-  } catch (error) {
-    console.error('Login error:', error);
-    throw error;
-  }
-};
-
 module.exports = {
   generateToken,
-  verifyFirebaseToken,
   registerUser,
+  loginUser,
   sendPhoneOtp,
   verifyPhoneOtp,
   sendEmailOtp,
-  verifyEmailOtp,
-  loginUser
+  verifyEmailOtp
 };

@@ -1,4 +1,3 @@
-const { admin } = require('../config/firebase');
 const User = require('../models/User');
 const { generateToken } = require('../services/auth.service');
 const authService = require('../services/auth.service');
@@ -11,35 +10,24 @@ exports.login = async (req, res, next) => {
       return res.status(400).json({ message: 'Email and password are required' });
     }
 
-    // Find user by email and select password
-    const user = await User.findOne({ email }).select('+password');
-    if (!user) {
-      return res.status(401).json({ message: 'Invalid email or password' });
-    }
-
-    // Check password
-    const isMatch = await user.correctPassword(password, user.password);
-    if (!isMatch) {
-      return res.status(401).json({ message: 'Invalid email or password' });
-    }
-
-    console.log('User found:', user._id);
-    // Generate JWT with MongoDB _id
-    const token = generateToken(user._id.toString());
+    const result = await authService.loginUser({ email, password });
 
     res.json({
-      token,
+      token: result.token,
       user: {
-        _id: user._id, // changed from id to _id
-        email: user.email,
-        name: user.name,
-        role: user.role
+        _id: result.user._id,
+        email: result.user.email,
+        name: result.user.name,
+        phone: result.user.phone,
+        role: result.user.role,
+        phoneVerified: result.user.phoneVerified,
+        emailVerified: result.user.emailVerified
       },
-      message: 'Login successful' // added message field
+      message: 'Login successful'
     });
   } catch (error) {
     console.error('Login error:', error);
-    next(error);
+    res.status(401).json({ message: error.message || 'Login failed' });
   }
 };
 
@@ -111,13 +99,16 @@ exports.register = async (req, res, next) => {
     });
   } catch (error) {
     console.error('Registration error:', error);
-    if (error.code === 'auth/email-already-exists') {
+    if (error.message === 'Email already in use') {
       return res.status(409).json({
         success: false,
         message: 'Email already in use'
       });
     }
-    next(error);
+    res.status(400).json({
+      success: false,
+      message: error.message || 'Registration failed'
+    });
   }
 };
 
