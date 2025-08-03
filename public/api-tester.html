@@ -16,7 +16,7 @@
         --text: #e3e3e3; 
         --text-muted: #b2bec3;
         --shadow: 0 1px 2px 0 rgba(44, 204, 113, 0.02);
-        --radius: 8px;
+        --radius: 0px;
         --transition: 0.15s cubic-bezier(.4,0,.2,1);
       }
       html, body, .container, .endpoint {
@@ -103,7 +103,7 @@
         border-left: 2px solid var(--primary);
         padding: 5px 10px;
         margin-bottom: 7px;
-        border-radius: 4px;
+        border-radius: 0px;
         font-size: 0.91rem;
         color: var(--text-muted);
         box-shadow: none;
@@ -151,7 +151,7 @@
       input, textarea, button {
         background: #4a574a;
         border: 1px solid #232526;
-        border-radius: 4px;
+        border-radius: 0px;
         color: var(--text);
         font-size: 0.93rem;
         padding: 6px 8px;
@@ -175,7 +175,7 @@
         background: var(--primary);
         color: #144400;
         border: none;
-        border-radius: 4px;
+        border-radius: 0px;
         padding: 7px 16px;
         font-size: 0.93rem;
         font-weight: 800;
@@ -193,7 +193,7 @@
         color: #fff;
         margin-top: 5px;
         background: #1a1d1e;
-        border-radius: 4px;
+        border-radius: 0px;
         padding: 6px 8px;
         font-size: 0.91rem;
         min-height: 18px;
@@ -721,6 +721,148 @@ SAVE5 - $5 discount</pre>
         <button onclick="getLoyaltyTransactions()">Get Transactions</button>
         <div class="response" id="transactionsResponse"></div>
       </div>
+
+      <!-- Menu Section -->
+      <div class="section-header">🍽️ Menu Management</div>
+
+      <!-- Get Menu Items Section -->
+      <div class="endpoint">
+        <h2>Get Menu Items</h2>
+        <div class="doc-block doc-block-get">
+          <b>GET</b> <code>/api/menu</code> &mdash; <b>Auth:</b> None<br/>
+          <span>Get all menu items with optional filtering</span>
+        </div>
+        <div>
+          <label for="menuCategory">Category:</label>
+          <select id="menuCategory">
+            <option value="">All Categories</option>
+            <option value="drink">Drinks</option>
+            <option value="main">Main Dishes</option>
+            <option value="dessert">Desserts</option>
+            <option value="appetizer">Appetizers</option>
+          </select>
+        </div>
+        <div>
+          <label for="menuDietary">Dietary:</label>
+          <select id="menuDietary">
+            <option value="">All Dietary</option>
+            <option value="vegetarian">Vegetarian</option>
+            <option value="vegan">Vegan</option>
+            <option value="gluten-free">Gluten Free</option>
+          </select>
+        </div>
+        <div>
+          <label for="menuSearch">Search:</label>
+          <input type="text" id="menuSearch" placeholder="Search menu items..." />
+        </div>
+        <div>
+          <label for="menuSortBy">Sort By:</label>
+          <select id="menuSortBy">
+            <option value="">Default</option>
+            <option value="name">Name</option>
+            <option value="price">Price</option>
+            <option value="preparationTime">Preparation Time</option>
+          </select>
+        </div>
+        <div>
+          <label for="menuLimit">Limit:</label>
+          <input type="number" id="menuLimit" placeholder="10" value="10" />
+        </div>
+        <div>
+          <label for="menuPage">Page:</label>
+          <input type="number" id="menuPage" placeholder="1" value="1" />
+        </div>
+        <button onclick="getMenuItems()">Get Menu Items</button>
+        <div class="response" id="menuResponse"></div>
+      </div>
+
+      <!-- Get Menu Item by ID Section -->
+      <div class="endpoint">
+        <h2>Get Menu Item by ID</h2>
+        <div class="doc-block doc-block-get">
+          <b>GET</b> <code>/api/menu/:id</code> &mdash; <b>Auth:</b> None<br/>
+          <span>Get a specific menu item by ID</span>
+        </div>
+        <div>
+          <label for="menuItemId">Menu Item ID:</label>
+          <input type="text" id="menuItemId" placeholder="Enter menu item ID" />
+        </div>
+        <button onclick="getMenuItemById()">Get Menu Item</button>
+        <div class="response" id="menuItemResponse"></div>
+      </div>
+
+      <!-- M-Pesa Payment Section -->
+      <div class="section-header">💳 M-Pesa Mobile Payments</div>
+
+      <!-- Initiate M-Pesa Payment Section -->
+      <div class="endpoint">
+        <h2>Initiate M-Pesa Payment</h2>
+        <div class="doc-block doc-block-post">
+          <b>POST</b> <code>/api/payments/mpesa/initiate</code> &mdash; <b>Auth:</b> JWT<br/>
+          <span>Initiate M-Pesa STK push payment</span>
+        </div>
+        <div>
+          <label for="mpesaToken">JWT Token:</label>
+          <input type="text" id="mpesaToken" placeholder="Paste token here" />
+        </div>
+        <div>
+          <label for="mpesaOrderId">Order ID:</label>
+          <input type="text" id="mpesaOrderId" placeholder="Enter order ID" />
+        </div>
+        <div>
+          <label for="mpesaPhoneNumber">Phone Number:</label>
+          <input type="text" id="mpesaPhoneNumber" placeholder="0712345678" />
+        </div>
+        <button onclick="initiateMpesaPayment()">Initiate Payment</button>
+        <div class="response" id="mpesaResponse"></div>
+        <div class="sample-data">
+          <h4>💡 Note:</h4>
+          <pre>Phone number should be in Kenyan format (0712345678)
+You will receive an STK push notification on your phone</pre>
+        </div>
+      </div>
+
+      <!-- Check Payment Status Section -->
+      <div class="endpoint">
+        <h2>Check Payment Status</h2>
+        <div class="doc-block doc-block-get">
+          <b>GET</b> <code>/api/payments/status/:paymentId</code> &mdash; <b>Auth:</b> JWT<br/>
+          <span>Check the status of a payment</span>
+        </div>
+        <div>
+          <label for="paymentStatusToken">JWT Token:</label>
+          <input type="text" id="paymentStatusToken" placeholder="Paste token here" />
+        </div>
+        <div>
+          <label for="paymentId">Payment ID:</label>
+          <input type="text" id="paymentId" placeholder="Enter payment ID" />
+        </div>
+        <button onclick="checkPaymentStatus()">Check Status</button>
+        <div class="response" id="paymentStatusResponse"></div>
+      </div>
+
+      <!-- Get Payment History Section -->
+      <div class="endpoint">
+        <h2>Get Payment History</h2>
+        <div class="doc-block doc-block-get">
+          <b>GET</b> <code>/api/payments/history</code> &mdash; <b>Auth:</b> JWT<br/>
+          <span>Get user's payment history</span>
+        </div>
+        <div>
+          <label for="paymentHistoryToken">JWT Token:</label>
+          <input type="text" id="paymentHistoryToken" placeholder="Paste token here" />
+        </div>
+        <div>
+          <label for="paymentHistoryPage">Page:</label>
+          <input type="number" id="paymentHistoryPage" placeholder="1" value="1" />
+        </div>
+        <div>
+          <label for="paymentHistoryLimit">Limit:</label>
+          <input type="number" id="paymentHistoryLimit" placeholder="10" value="10" />
+        </div>
+        <button onclick="getPaymentHistory()">Get Payment History</button>
+        <div class="response" id="paymentHistoryResponse"></div>
+      </div>
     </div>
 
     <script>
@@ -734,7 +876,8 @@ SAVE5 - $5 discount</pre>
           'emailOtpToken', 'verifyEmailToken', 'getCartToken', 
           'addToCartToken', 'updateCartToken', 'removeFromCartToken',
           'clearCartToken', 'promoCodeToken', 'deliveryFeeToken',
-          'loyaltyToken', 'rewardsToken', 'redeemToken', 'transactionsToken'
+          'loyaltyToken', 'rewardsToken', 'redeemToken', 'transactionsToken',
+          'mpesaToken', 'paymentStatusToken', 'paymentHistoryToken'
         ];
         tokenFields.forEach(fieldId => {
           const field = document.getElementById(fieldId);
@@ -1394,6 +1537,162 @@ SAVE5 - $5 discount</pre>
           const response = await fetch("/api/loyalty/transactions", {
             method: "GET",
             headers: { Authorization: `Bearer ${token}` },
+          });
+          const data = await response.json();
+          if (response.ok) {
+            responseElement.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+          } else {
+            responseElement.innerHTML = `<pre style="color:red;">Error ${response.status}: ${data.message || "Request failed"}</pre>`;
+          }
+        } catch (error) {
+          responseElement.innerHTML = `<pre style="color:red;">Error: ${error.message}</pre>`;
+        }
+      }
+
+      // M-Pesa Payment Functions
+      async function initiateMpesaPayment() {
+        const token = document.getElementById("mpesaToken").value || authToken;
+        const orderId = document.getElementById("mpesaOrderId").value;
+        const phoneNumber = document.getElementById("mpesaPhoneNumber").value;
+        const responseElement = document.getElementById("mpesaResponse");
+
+        if (!token) {
+          responseElement.innerHTML = '<pre style="color:red;">Error: No token provided. Please login first.</pre>';
+          return;
+        }
+        if (!orderId) {
+          responseElement.innerHTML = '<pre style="color:red;">Error: Order ID is required.</pre>';
+          return;
+        }
+        if (!phoneNumber) {
+          responseElement.innerHTML = '<pre style="color:red;">Error: Phone number is required.</pre>';
+          return;
+        }
+        responseElement.innerHTML = "<pre>Loading...</pre>";
+        try {
+          const response = await fetch("/api/payments/mpesa/initiate", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ orderId, phoneNumber }),
+          });
+          const data = await response.json();
+          if (response.ok) {
+            responseElement.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+          } else {
+            responseElement.innerHTML = `<pre style="color:red;">Error ${response.status}: ${data.message || "Request failed"}</pre>`;
+          }
+        } catch (error) {
+          responseElement.innerHTML = `<pre style="color:red;">Error: ${error.message}</pre>`;
+        }
+      }
+
+      async function checkPaymentStatus() {
+        const token = document.getElementById("paymentStatusToken").value || authToken;
+        const paymentId = document.getElementById("paymentId").value;
+        const responseElement = document.getElementById("paymentStatusResponse");
+
+        if (!token) {
+          responseElement.innerHTML = '<pre style="color:red;">Error: No token provided. Please login first.</pre>';
+          return;
+        }
+        if (!paymentId) {
+          responseElement.innerHTML = '<pre style="color:red;">Error: Payment ID is required.</pre>';
+          return;
+        }
+        responseElement.innerHTML = "<pre>Loading...</pre>";
+        try {
+          const response = await fetch(`/api/payments/status/${paymentId}`, {
+            method: "GET",
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const data = await response.json();
+          if (response.ok) {
+            responseElement.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+          } else {
+            responseElement.innerHTML = `<pre style="color:red;">Error ${response.status}: ${data.message || "Request failed"}</pre>`;
+          }
+        } catch (error) {
+          responseElement.innerHTML = `<pre style="color:red;">Error: ${error.message}</pre>`;
+        }
+      }
+
+      async function getPaymentHistory() {
+        const token = document.getElementById("paymentHistoryToken").value || authToken;
+        const page = document.getElementById("paymentHistoryPage").value || "1";
+        const limit = document.getElementById("paymentHistoryLimit").value || "10";
+        const responseElement = document.getElementById("paymentHistoryResponse");
+
+        if (!token) {
+          responseElement.innerHTML = '<pre style="color:red;">Error: No token provided. Please login first.</pre>';
+          return;
+        }
+        responseElement.innerHTML = "<pre>Loading...</pre>";
+        try {
+          const response = await fetch(`/api/payments/history?page=${page}&limit=${limit}`, {
+            method: "GET",
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const data = await response.json();
+          if (response.ok) {
+            responseElement.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+          } else {
+            responseElement.innerHTML = `<pre style="color:red;">Error ${response.status}: ${data.message || "Request failed"}</pre>`;
+          }
+        } catch (error) {
+          responseElement.innerHTML = `<pre style="color:red;">Error: ${error.message}</pre>`;
+        }
+      }
+
+      // Menu Functions
+      async function getMenuItems() {
+        const category = document.getElementById("menuCategory").value;
+        const dietary = document.getElementById("menuDietary").value;
+        const search = document.getElementById("menuSearch").value;
+        const sortBy = document.getElementById("menuSortBy").value;
+        const limit = document.getElementById("menuLimit").value || "10";
+        const page = document.getElementById("menuPage").value || "1";
+        const responseElement = document.getElementById("menuResponse");
+
+        responseElement.innerHTML = "<pre>Loading...</pre>";
+        try {
+          let url = "/api/menu?";
+          if (category) url += `category=${category}&`;
+          if (dietary) url += `dietary=${dietary}&`;
+          if (search) url += `search=${search}&`;
+          if (sortBy) url += `sortBy=${sortBy}&`;
+          url += `limit=${limit}&page=${page}`;
+
+          const response = await fetch(url, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+          });
+          const data = await response.json();
+          if (response.ok) {
+            responseElement.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+          } else {
+            responseElement.innerHTML = `<pre style="color:red;">Error ${response.status}: ${data.message || "Request failed"}</pre>`;
+          }
+        } catch (error) {
+          responseElement.innerHTML = `<pre style="color:red;">Error: ${error.message}</pre>`;
+        }
+      }
+
+      async function getMenuItemById() {
+        const menuItemId = document.getElementById("menuItemId").value;
+        const responseElement = document.getElementById("menuItemResponse");
+
+        if (!menuItemId) {
+          responseElement.innerHTML = '<pre style="color:red;">Error: Menu item ID is required.</pre>';
+          return;
+        }
+        responseElement.innerHTML = "<pre>Loading...</pre>";
+        try {
+          const response = await fetch(`/api/menu/${menuItemId}`, {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
           });
           const data = await response.json();
           if (response.ok) {

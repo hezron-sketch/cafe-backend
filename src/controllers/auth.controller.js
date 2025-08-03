@@ -35,22 +35,26 @@ exports.getMe = async (req, res, next) => {
   try {
     if (!req.user || !req.user.uid) {
       return res.status(401).json({
-        success: false,
         message: 'Not authenticated'
       });
     }
     const user = await User.findById(req.user.uid)
-      .select('-__v -password')
-      .populate('favorites', 'name price imageUrl');
+      .select('-__v -password');
     if (!user) {
       return res.status(404).json({
-        success: false,
         message: 'User not found'
       });
     }
     res.status(200).json({
-      success: true,
-      data: user
+      _id: user._id,
+      email: user.email,
+      name: user.name,
+      phone: user.phone,
+      role: user.role,
+      phoneVerified: user.phoneVerified,
+      emailVerified: user.emailVerified,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt
     });
   } catch (error) {
     next(error);
