@@ -725,6 +725,17 @@ SAVE5 - $5 discount</pre>
       <!-- Menu Section -->
       <div class="section-header">🍽️ Menu Management</div>
 
+      <!-- Get Menu Categories Section -->
+      <div class="endpoint">
+        <h2>Get Menu Categories</h2>
+        <div class="doc-block doc-block-get">
+          <b>GET</b> <code>/api/menu/categories</code> &mdash; <b>Auth:</b> None<br/>
+          <span>Get all available menu categories with item counts</span>
+        </div>
+        <button onclick="getMenuCategories()">Get Categories</button>
+        <div class="response" id="menuCategoriesResponse"></div>
+      </div>
+
       <!-- Get Menu Items Section -->
       <div class="endpoint">
         <h2>Get Menu Items</h2>
@@ -736,10 +747,11 @@ SAVE5 - $5 discount</pre>
           <label for="menuCategory">Category:</label>
           <select id="menuCategory">
             <option value="">All Categories</option>
-            <option value="drink">Drinks</option>
+            <option value="starter">Starters</option>
             <option value="main">Main Dishes</option>
             <option value="dessert">Desserts</option>
-            <option value="appetizer">Appetizers</option>
+            <option value="drink">Drinks</option>
+            <option value="special">Special</option>
           </select>
         </div>
         <div>
@@ -749,6 +761,8 @@ SAVE5 - $5 discount</pre>
             <option value="vegetarian">Vegetarian</option>
             <option value="vegan">Vegan</option>
             <option value="gluten-free">Gluten Free</option>
+            <option value="dairy-free">Dairy Free</option>
+            <option value="nut-free">Nut Free</option>
           </select>
         </div>
         <div>
@@ -1647,6 +1661,26 @@ You will receive an STK push notification on your phone</pre>
       }
 
       // Menu Functions
+      async function getMenuCategories() {
+        const responseElement = document.getElementById("menuCategoriesResponse");
+
+        responseElement.innerHTML = "<pre>Loading...</pre>";
+        try {
+          const response = await fetch("/api/menu/categories", {
+            method: "GET",
+            headers: { "Content-Type": "application/json" },
+          });
+          const data = await response.json();
+          if (response.ok) {
+            responseElement.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+          } else {
+            responseElement.innerHTML = `<pre style="color:red;">Error ${response.status}: ${data.message || "Request failed"}</pre>`;
+          }
+        } catch (error) {
+          responseElement.innerHTML = `<pre style="color:red;">Error: ${error.message}</pre>`;
+        }
+      }
+
       async function getMenuItems() {
         const category = document.getElementById("menuCategory").value;
         const dietary = document.getElementById("menuDietary").value;

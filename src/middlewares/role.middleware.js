@@ -1,10 +1,25 @@
-const roleMiddleware = (requiredRole) => {
-  return (req, res, next) => {
-    if (req.user.role !== requiredRole) {
-      return res.status(403).json({ message: 'Forbidden: Insufficient permissions' });
+exports.isAdmin = (req, res, next) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({
+        success: false,
+        message: 'Authentication required',
+      });
     }
-    next();
-  };
-};
 
-module.exports = roleMiddleware;
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Admin access required',
+      });
+    }
+
+    next();
+  } catch (error) {
+    console.error('Role middleware error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+    });
+  }
+};

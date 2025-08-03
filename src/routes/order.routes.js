@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const orderController = require('../controllers/order.controller');
 const authMiddleware = require('../middlewares/auth.middleware');
-const roleMiddleware = require('../middlewares/role.middleware');
+const { isAdmin } = require('../middlewares/role.middleware');
 
 // Customer routes
 router.post('/', authMiddleware.authenticate, orderController.createOrder);
@@ -28,42 +28,42 @@ router.get(
 router.get(
   '/admin/stats',
   authMiddleware.authenticate,
-  roleMiddleware('admin'),
+  isAdmin,
   orderController.getOrderStats
 );
 
 router.get(
   '/admin/pending',
   authMiddleware.authenticate,
-  roleMiddleware(['admin', 'staff']),
+  isAdmin,
   orderController.getPendingOrders
 );
 
 router.put(
   '/:id/status',
   authMiddleware.authenticate,
-  roleMiddleware(['admin', 'staff']),
+  isAdmin,
   orderController.updateOrderStatus
 );
 
 router.put(
   '/:id/assign',
   authMiddleware.authenticate,
-  roleMiddleware(['admin', 'staff']),
+  isAdmin,
   orderController.assignOrder
 );
 
 router.put(
   '/:id',
   authMiddleware.authenticate,
-  roleMiddleware('admin'),
+  isAdmin,
   orderController.updateOrder
 );
 
 router.delete(
   '/:id',
   authMiddleware.authenticate,
-  roleMiddleware('admin'),
+  isAdmin,
   orderController.deleteOrder
 );
 

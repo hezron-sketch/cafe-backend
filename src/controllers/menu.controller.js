@@ -92,3 +92,33 @@ exports.deleteMenuItem = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.getCategories = async (req, res, next) => {
+  try {
+    // Get all unique categories from the database
+    const categories = await MenuItem.distinct('category');
+    
+    // Get count of items in each category
+    const categoryStats = await Promise.all(
+      categories.map(async (category) => {
+        const count = await MenuItem.countDocuments({ category });
+        return {
+          name: category,
+          count: count,
+          displayName: category.charAt(0).toUpperCase() + category.slice(1) // Capitalize first letter
+        };
+      })
+    );
+
+    res.json({
+      success: true,
+      message: 'Categories retrieved successfully',
+      data: {
+        categories: categoryStats,
+        total: categories.length
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
