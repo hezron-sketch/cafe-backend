@@ -4,7 +4,14 @@ const orderController = require('../controllers/order.controller');
 const authMiddleware = require('../middlewares/auth.middleware');
 const { isAdmin } = require('../middlewares/role.middleware');
 
-// Customer routes
+// Cart routes (must be authenticated)
+router.get('/cart', authMiddleware.authenticate, orderController.getCart);
+router.post('/cart/add', authMiddleware.authenticate, orderController.addToCart);
+router.delete('/cart/remove/:menuItemId', authMiddleware.authenticate, orderController.removeFromCart);
+router.put('/cart/update/:menuItemId', authMiddleware.authenticate, orderController.updateCartItem);
+router.delete('/cart/clear', authMiddleware.authenticate, orderController.clearCart);
+
+// Order routes (orders can only be created from cart)
 router.post('/', authMiddleware.authenticate, orderController.createOrder);
 router.get('/user', authMiddleware.authenticate, orderController.getUserOrders);
 router.get('/:id', authMiddleware.authenticate, orderController.getOrderById);
@@ -66,5 +73,9 @@ router.delete(
   isAdmin,
   orderController.deleteOrder
 );
+
+// M-Pesa payment routes
+router.post('/mpesa/callback', orderController.handleMpesaCallback);
+router.get('/mpesa/verify/:checkoutRequestID', orderController.verifyMpesaPayment);
 
 module.exports = router;

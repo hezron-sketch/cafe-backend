@@ -3,72 +3,78 @@ const crypto = require('crypto');
 
 class MpesaService {
   constructor() {
-    // M-Pesa API configuration
-    this.baseUrl = process.env.MPESA_BASE_URL || 'https://sandbox.safaricom.co.ke';
-    this.businessShortCode = process.env.MPESA_BUSINESS_SHORT_CODE;
-    this.passkey = process.env.MPESA_PASSKEY;
+    this.baseURL = process.env.MPESA_BASE_URL || 'https://sandbox.safaricom.co.ke';
     this.consumerKey = process.env.MPESA_CONSUMER_KEY;
     this.consumerSecret = process.env.MPESA_CONSUMER_SECRET;
-    this.callbackUrl = process.env.MPESA_CALLBACK_URL || 'https://your-domain.com/api/payments/mpesa/callback';
-    
-    // Initialize access token
-    this.accessToken = null;
-    this.tokenExpiry = null;
+    this.passkey = process.env.MPESA_PASSKEY;
+    this.shortcode = process.env.MPESA_SHORTCODE;
+    this.callbackURL = process.env.MPESA_CALLBACK_URL || 'https://your-domain.com/api/mpesa/callback';
   }
 
   // Generate access token
   async getAccessToken() {
-    if (this.accessToken && this.tokenExpiry && new Date() < this.tokenExpiry) {
-      return this.accessToken;
-    }
-
     try {
       const auth = Buffer.from(`${this.consumerKey}:${this.consumerSecret}`).toString('base64');
-      const response = await axios.get(`${this.baseUrl}/oauth/v1/generate?grant_type=client_credentials`, {
+      const response = await axios.get(`${this.baseURL}/oauth/v1/generate?grant_type=client_credentials`, {
         headers: {
           'Authorization': `Basic ${auth}`
         }
       });
-
-      this.accessToken = response.data.access_token;
-      this.tokenExpiry = new Date(Date.now() + (response.data.expires_in * 1000));
-      
-      return this.accessToken;
+      return response.data.access_token;
     } catch (error) {
-      console.error('Error getting M-Pesa access token:', error);
+      console.error('Error getting access token:', error);
       throw new Error('Failed to get M-Pesa access token');
     }
   }
 
-  // Generate password for STK push
-  generatePassword() {
-    const timestamp = new Date().toISOString().replace(/[^0-9]/g, '').slice(0, -3);
-    const password = Buffer.from(`${this.businessShortCode}${this.passkey}${timestamp}`).toString('base64');
-    return { password, timestamp };
+  // Generate timestamp
+  getTimestamp() {
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hour = String(date.getHours()).padStart(2, '0');
+    const minute = String(date.getMinutes()).padStart(2, '0');
+    const second = String(date.getSeconds()).padStart(2, '0');
+    return `${year}${month}${day}${hour}${minute}${second}`;
   }
 
-  // Initiate STK push
-  async initiateSTKPush(phoneNumber, amount, reference) {
+  // Generate password
+  generatePassword() {
+    const timestamp = this.getTimestamp();
+    const password = Buffer.from(`${this.shortcode}${this.passkey}${timestamp}`).toString('base64');
+    return password;
+  }
+
+  // Initiate STK Push
+  async initiateSTKPush(phoneNumber, amount, orderId, description = 'Payment for order') {
     try {
       const accessToken = await this.getAccessToken();
-      const { password, timestamp } = this.generatePassword();
+      const timestamp = this.getTimestamp();
+      const password = this.generatePassword();
+
+      // Format phone number (remove +254 and add 254)
+      let formattedPhone = phoneNumber.replace(/^\+/, '').replace(/^0/, '254');
+      if (!formattedPhone.startsWith('254')) {
+        formattedPhone = `254${formattedPhone}`;
+      }
 
       const payload = {
-        BusinessShortCode: this.businessShortCode,
+        BusinessShortCode: this.shortcode,
         Password: password,
         Timestamp: timestamp,
         TransactionType: 'CustomerPayBillOnline',
-        Amount: Math.round(amount),
-        PartyA: phoneNumber,
-        PartyB: this.businessShortCode,
-        PhoneNumber: phoneNumber,
-        CallBackURL: this.callbackUrl,
-        AccountReference: reference,
-        TransactionDesc: 'Cafe Payment'
+        Amount: Math.round(amount), // M-Pesa requires integer amount
+        PartyA: formattedPhone,
+        PartyB: this.shortcode,
+        PhoneNumber: formattedPhone,
+        CallBackURL: this.callbackURL,
+        AccountReference: `Order_${orderId}`,
+        TransactionDesc: description
       };
 
       const response = await axios.post(
-        `${this.baseUrl}/mpesa/stkpush/v1/processrequest`,
+        `${this.baseURL}/mpesa/stkpush/v1/processrequest`,
         payload,
         {
           headers: {
@@ -80,33 +86,34 @@ class MpesaService {
 
       return {
         success: true,
-        checkoutRequestId: response.data.CheckoutRequestID,
-        merchantRequestId: response.data.MerchantRequestID,
-        responseCode: response.data.ResponseCode,
-        responseDescription: response.data.ResponseDescription,
-        customerMessage: response.data.CustomerMessage
+        data: response.data,
+        orderId: orderId
       };
     } catch (error) {
       console.error('STK Push error:', error.response?.data || error.message);
-      throw new Error('Failed to initiate STK push');
+      return {
+        success: false,
+        error: error.response?.data?.errorMessage || error.message
+      };
     }
   }
 
-  // Check payment status
-  async checkPaymentStatus(checkoutRequestId) {
+  // Verify payment status
+  async verifyPayment(checkoutRequestID) {
     try {
       const accessToken = await this.getAccessToken();
-      const { password, timestamp } = this.generatePassword();
+      const timestamp = this.getTimestamp();
+      const password = this.generatePassword();
 
       const payload = {
-        BusinessShortCode: this.businessShortCode,
+        BusinessShortCode: this.shortcode,
         Password: password,
         Timestamp: timestamp,
-        CheckoutRequestID: checkoutRequestId
+        CheckoutRequestID: checkoutRequestID
       };
 
       const response = await axios.post(
-        `${this.baseUrl}/mpesa/stkpushquery/v1/query`,
+        `${this.baseURL}/mpesa/stkpushquery/v1/query`,
         payload,
         {
           headers: {
@@ -118,50 +125,14 @@ class MpesaService {
 
       return {
         success: true,
-        resultCode: response.data.ResultCode,
-        resultDesc: response.data.ResultDesc,
-        checkoutRequestId: response.data.CheckoutRequestID,
-        merchantRequestId: response.data.MerchantRequestID
+        data: response.data
       };
     } catch (error) {
-      console.error('Payment status check error:', error.response?.data || error.message);
-      throw new Error('Failed to check payment status');
-    }
-  }
-
-  // Process callback from M-Pesa
-  processCallback(callbackData) {
-    try {
-      const {
-        Body: {
-          stkCallback: {
-            CheckoutRequestID,
-            ResultCode,
-            ResultDesc,
-            CallbackMetadata
-          }
-        }
-      } = callbackData;
-
-      const metadata = {};
-      if (CallbackMetadata && CallbackMetadata.Item) {
-        CallbackMetadata.Item.forEach(item => {
-          metadata[item.Name] = item.Value;
-        });
-      }
-
+      console.error('Payment verification error:', error.response?.data || error.message);
       return {
-        checkoutRequestId: CheckoutRequestID,
-        resultCode: ResultCode,
-        resultDesc: ResultDesc,
-        transactionId: metadata.MpesaReceiptNumber,
-        transactionDate: metadata.TransactionDate,
-        amount: metadata.Amount,
-        phoneNumber: metadata.PhoneNumber
+        success: false,
+        error: error.response?.data?.errorMessage || error.message
       };
-    } catch (error) {
-      console.error('Error processing callback:', error);
-      throw new Error('Invalid callback data');
     }
   }
 }

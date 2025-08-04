@@ -408,91 +408,266 @@
         <div class="response" id="meResponse"></div>
       </div>
 
+      <!-- Cart Management Section -->
+      <div class="section-header">🛒 Cart Management</div>
+
+      <!-- Workflow Guide -->
+      <div class="endpoint" style="background: #f8f9fa; border-left: 4px solid #007bff;">
+        <h2>📋 Complete Cart-to-Order Workflow</h2>
+        <div class="sample-data">
+          <h4>🔄 Step-by-Step Process:</h4>
+          <ol style="text-align: left; padding-left: 20px;">
+            <li><strong>Login</strong> - Get your JWT token from the Authentication section</li>
+            <li><strong>Add Items to Cart</strong> - Use the "Add Menu Item to Cart" section below</li>
+            <li><strong>View Cart</strong> - Check your cart contents and totals</li>
+            <li><strong>Manage Cart</strong> - Update quantities or remove items as needed</li>
+            <li><strong>Checkout</strong> - Choose service type and payment method</li>
+            <li><strong>View Orders</strong> - See your created orders</li>
+            <li><strong>Cancel Orders</strong> - Cancel orders if needed (before completion)</li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- Get Cart Section -->
+      <div class="endpoint">
+        <h2>Get Cart</h2>
+        <div class="doc-block doc-block-get">
+          <b>GET</b> <code>/api/orders/cart</code> &mdash; <b>Auth:</b> JWT<br/>
+          <span>Get user's current cart with items and totals</span>
+        </div>
+        <div>
+          <label for="getCartToken">JWT Token:</label>
+          <input type="text" id="getCartToken" placeholder="Paste token here" />
+        </div>
+        <button onclick="getCart()">Get Cart</button>
+        <div class="response" id="getCartResponse"></div>
+        <div class="sample-data">
+          <h4>💡 Tip:</h4>
+          <pre>Use this to check your cart contents before checkout</pre>
+        </div>
+      </div>
+
+      <!-- Add to Cart Section -->
+      <div class="endpoint">
+        <h2>Add Menu Item to Cart</h2>
+        <div class="doc-block doc-block-post">
+          <b>POST</b> <code>/api/orders/cart/add</code> &mdash; <b>Auth:</b> JWT<br/>
+          <span>Add a menu item to the cart (name and price fetched from database)</span>
+        </div>
+        <div>
+          <label for="addToCartToken">JWT Token:</label>
+          <input type="text" id="addToCartToken" placeholder="Paste token here" />
+        </div>
+        <div>
+          <label for="menuItemId">Menu Item ID:</label>
+          <input type="text" id="menuItemId" placeholder="Enter menu item ID" />
+        </div>
+        <div>
+          <label for="itemQuantity">Quantity:</label>
+          <input type="number" id="itemQuantity" placeholder="1" value="1" min="1" />
+        </div>
+        <div>
+          <label for="specialInstructions">Special Instructions:</label>
+          <textarea id="specialInstructions" rows="2" placeholder="e.g., Extra cheese, no onions"></textarea>
+        </div>
+        <button onclick="addToCart()">Add to Cart</button>
+        <div class="response" id="addToCartResponse"></div>
+        <div class="sample-data">
+          <h4>💡 Quick Add Examples:</h4>
+          <button onclick="quickAddItem('Espresso', '6890cfafa99a1964956e420e')" style="margin: 5px; padding: 8px 12px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">Add Espresso</button>
+          <button onclick="quickAddItem('Cappuccino', '6890cfafa99a1964956e420f')" style="margin: 5px; padding: 8px 12px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">Add Cappuccino</button>
+          <button onclick="quickAddItem('Avocado Toast', '6890cfafa99a1964956e4210')" style="margin: 5px; padding: 8px 12px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">Add Avocado Toast</button>
+          <button onclick="quickAddItem('Chicken Caesar Salad', '6890cfafa99a1964956e4211')" style="margin: 5px; padding: 8px 12px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">Add Chicken Caesar Salad</button>
+          <button onclick="quickAddItem('Chocolate Cake', '6890cfafa99a1964956e4212')" style="margin: 5px; padding: 8px 12px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">Add Chocolate Cake</button>
+          <button onclick="quickAddItem('Iced Latte', '6890cfafa99a1964956e4213')" style="margin: 5px; padding: 8px 12px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">Add Iced Latte</button>
+        </div>
+        <div class="sample-data">
+          <h4>🔒 Security Note:</h4>
+          <pre>Name and price are automatically fetched from the database using the menuItemId. 
+This prevents price manipulation and ensures data consistency.</pre>
+        </div>
+      </div>
+
+      <!-- Update Cart Item Section -->
+      <div class="endpoint">
+        <h2>Update Cart Item</h2>
+        <div class="doc-block doc-block-put">
+          <b>PUT</b> <code>/api/orders/cart/update/:menuItemId</code> &mdash; <b>Auth:</b> JWT<br/>
+          <span>Update quantity or special instructions for a cart item</span>
+        </div>
+        <div>
+          <label for="updateCartToken">JWT Token:</label>
+          <input type="text" id="updateCartToken" placeholder="Paste token here" />
+        </div>
+        <div>
+          <label for="updateCartItemId">Menu Item ID:</label>
+          <input type="text" id="updateCartItemId" placeholder="Menu item ID to update" />
+        </div>
+        <div>
+          <label for="updateQuantity">New Quantity:</label>
+          <input type="number" id="updateQuantity" placeholder="2" min="1" />
+        </div>
+        <div>
+          <label for="updateSpecialInstructions">Special Instructions:</label>
+          <textarea id="updateSpecialInstructions" rows="2" placeholder="Updated instructions"></textarea>
+        </div>
+        <button onclick="updateCartItem()">Update Cart Item</button>
+        <div class="response" id="updateCartResponse"></div>
+        <div class="sample-data">
+          <h4>💡 Note:</h4>
+          <pre>Use the Menu Item ID from your cart to update specific items</pre>
+        </div>
+      </div>
+
+      <!-- Remove from Cart Section -->
+      <div class="endpoint">
+        <h2>Remove Item from Cart</h2>
+        <div class="doc-block doc-block-delete">
+          <b>DELETE</b> <code>/api/orders/cart/remove/:menuItemId</code> &mdash; <b>Auth:</b> JWT<br/>
+          <span>Remove a specific item from the cart</span>
+        </div>
+        <div>
+          <label for="removeFromCartToken">JWT Token:</label>
+          <input type="text" id="removeFromCartToken" placeholder="Paste token here" />
+        </div>
+        <div>
+          <label for="removeCartItemId">Menu Item ID:</label>
+          <input type="text" id="removeCartItemId" placeholder="Menu item ID to remove" />
+        </div>
+        <button onclick="removeFromCart()">Remove from Cart</button>
+        <div class="response" id="removeFromCartResponse"></div>
+        <div class="sample-data">
+          <h4>⚠️ Warning:</h4>
+          <pre>This action cannot be undone. The item will be permanently removed from your cart.</pre>
+        </div>
+      </div>
+
+      <!-- Clear Cart Section -->
+      <div class="endpoint">
+        <h2>Clear Cart</h2>
+        <div class="doc-block doc-block-delete">
+          <b>DELETE</b> <code>/api/orders/cart/clear</code> &mdash; <b>Auth:</b> JWT<br/>
+          <span>Remove all items from the cart</span>
+        </div>
+        <div>
+          <label for="clearCartToken">JWT Token:</label>
+          <input type="text" id="clearCartToken" placeholder="Paste token here" />
+        </div>
+        <button onclick="clearCart()" style="background: #dc3545; color: white;">Clear Cart</button>
+        <div class="response" id="clearCartResponse"></div>
+        <div class="sample-data">
+          <h4>⚠️ Warning:</h4>
+          <pre>This will remove ALL items from your cart. This action cannot be undone.</pre>
+        </div>
+      </div>
+
       <!-- Orders Section -->
       <div class="section-header">🛍️ Orders Management</div>
 
-      <!-- Get Orders Section (Admin) -->
-      <div class="endpoint">
-        <h2>Get All Orders (Admin Only)</h2>
-        <div class="doc-block doc-block-get">
-          <b>GET</b> <code>/api/orders</code> &mdash; <b>Auth:</b> Admin JWT<br/>
-          <span>Get all orders (admin only) or user's own orders (regular users)</span>
-        </div>
-        <div>
-          <label for="token">JWT Token:</label>
-          <input type="text" id="token" placeholder="Paste token here" />
-        </div>
-        <button onclick="getOrders()">Get Orders</button>
-        <div class="response" id="ordersResponse"></div>
-        <div class="sample-data">
-          <h4>💡 Note:</h4>
-          <pre>• Admin users: Gets ALL orders from all users
-• Regular users: Gets only their own orders
-• Make sure you're logged in as an admin user to see all orders</pre>
-        </div>
-      </div>
-
-      <!-- Get My Orders Section -->
-      <div class="endpoint">
-        <h2>Get My Orders (User Specific)</h2>
-        <div class="doc-block doc-block-get">
-          <b>GET</b> <code>/api/orders/user</code> &mdash; <b>Auth:</b> JWT<br/>
-          <span>Get orders for the logged-in user only</span>
-        </div>
-        <div>
-          <label for="myOrdersToken">JWT Token:</label>
-          <input type="text" id="myOrdersToken" placeholder="Paste token here" />
-        </div>
-        <button onclick="getMyOrders()">Get My Orders</button>
-        <div class="response" id="myOrdersResponse"></div>
-        <div class="sample-data">
-          <h4>💡 Note:</h4>
-          <pre>This endpoint always returns only the logged-in user's orders, regardless of role</pre>
-        </div>
-      </div>
-
-      <!-- Create Order Section -->
-      <div class="endpoint">
-        <h2>Create Order</h2>
+      <!-- Create Order from Cart Section -->
+      <div class="endpoint" style="border-left: 4px solid #28a745;">
+        <h2>Checkout & Create Order</h2>
         <div class="doc-block doc-block-post">
           <b>POST</b> <code>/api/orders</code> &mdash; <b>Auth:</b> JWT<br/>
-          <span>Create a new order</span>
+          <span>Create a new order from cart items (checkout process)</span>
         </div>
         <div>
           <label for="createOrderToken">JWT Token:</label>
           <input type="text" id="createOrderToken" placeholder="Paste token here" />
         </div>
         <div>
-          <label for="orderBody">Order JSON Body:</label>
-          <textarea id="orderBody" rows="8" style="width: 100%" placeholder='{"items":[], "serviceType":"delivery", ...}'>{
-  "items": [
-    {
-      "menuItemId": "REPLACE_WITH_ACTUAL_ID",
-      "name": "Espresso",
-      "price": 3.5,
-      "quantity": 1,
-      "specialInstructions": "Extra hot"
-    }
-  ],
-  "totalAmount": 3.5,
-  "serviceType": "takeaway",
-  "paymentMethod": "cash"
-}</textarea>
+          <label for="serviceType">Service Type:</label>
+          <select id="serviceType" onchange="toggleDeliveryAddress()">
+            <option value="takeaway">Takeaway</option>
+            <option value="delivery">Delivery</option>
+            <option value="dine-in">Dine-in</option>
+          </select>
         </div>
-        <button onclick="createOrder()">Create Order</button>
+        <div id="deliveryAddressSection" style="display: none; background: #f8f9fa; padding: 15px; border-radius: 4px; margin: 10px 0;">
+          <h4>📍 Delivery Address</h4>
+          <div>
+            <label for="deliveryStreet">Street Address:</label>
+            <input type="text" id="deliveryStreet" placeholder="123 Main St" />
+          </div>
+          <div>
+            <label for="deliveryCity">City:</label>
+            <input type="text" id="deliveryCity" placeholder="Nairobi" />
+          </div>
+          <div>
+            <label for="deliveryLat">Latitude:</label>
+            <input type="number" id="deliveryLat" placeholder="-1.2921" step="any" />
+          </div>
+          <div>
+            <label for="deliveryLng">Longitude:</label>
+            <input type="number" id="deliveryLng" placeholder="36.8219" step="any" />
+          </div>
+        </div>
+        <div>
+          <label for="paymentMethod">Payment Method:</label>
+          <select id="paymentMethod" onchange="toggleMpesaPhoneField()">
+            <option value="">Select payment method</option>
+            <option value="mpesa">M-Pesa</option>
+            <option value="card">Card</option>
+            <option value="cash">Cash</option>
+          </select>
+        </div>
+        <div id="mpesaPhoneField" style="display: none;">
+          <label for="mpesaPhoneNumber">M-Pesa Phone Number:</label>
+          <input type="tel" id="mpesaPhoneNumber" placeholder="e.g., 0712345678 or +254712345678" />
+          <small style="color: #666;">Enter your M-Pesa registered phone number</small>
+        </div>
+        <div>
+          <label for="promoCode">Promo Code (Optional):</label>
+          <input type="text" id="promoCode" placeholder="SAVE10" />
+        </div>
+        <button onclick="checkoutAndCreateOrder()" style="background: #28a745; color: white; padding: 12px 24px; font-size: 16px;">Checkout & Create Order</button>
         <div class="response" id="createOrderResponse"></div>
         <div class="sample-data">
-          <h4>📋 Sample Order Data:</h4>
-          <pre>Use get-menu-ids.js to get actual menu item IDs</pre>
+          <h4>📋 Checkout Process:</h4>
+          <ol style="text-align: left; padding-left: 20px;">
+            <li>Add items to cart using "Add to Cart"</li>
+            <li>Review cart using "Get Cart"</li>
+            <li>Update quantities if needed</li>
+            <li>Choose service type and payment method</li>
+            <li>Fill delivery address if choosing delivery</li>
+            <li>Click "Checkout & Create Order" to complete purchase</li>
+            <li>Cart will be automatically cleared after successful order</li>
+          </ol>
+        </div>
+      </div>
+
+      <!-- Get My Orders Section -->
+      <div class="endpoint">
+        <h2>View My Orders</h2>
+        <div class="doc-block doc-block-get">
+          <b>GET</b> <code>/api/orders/user</code> &mdash; <b>Auth:</b> JWT<br/>
+          <span>Get all orders for the logged-in user</span>
+        </div>
+        <div>
+          <label for="myOrdersToken">JWT Token:</label>
+          <input type="text" id="myOrdersToken" placeholder="Paste token here" />
+        </div>
+        <button onclick="getMyOrders()">View My Orders</button>
+        <div class="response" id="myOrdersResponse"></div>
+        <div class="sample-data">
+          <h4>💡 Order Status Guide:</h4>
+          <ul style="text-align: left; padding-left: 20px;">
+            <li><strong>pending</strong> - Order received, waiting for confirmation</li>
+            <li><strong>confirmed</strong> - Order confirmed by restaurant</li>
+            <li><strong>preparing</strong> - Food is being prepared</li>
+            <li><strong>out-for-delivery</strong> - Order is on the way</li>
+            <li><strong>delivered</strong> - Order completed successfully</li>
+            <li><strong>cancelled</strong> - Order was cancelled</li>
+          </ul>
         </div>
       </div>
 
       <!-- Get Order by ID Section -->
       <div class="endpoint">
-        <h2>Get Order by ID</h2>
+        <h2>View Order Details</h2>
         <div class="doc-block doc-block-get">
           <b>GET</b> <code>/api/orders/:id</code> &mdash; <b>Auth:</b> JWT<br/>
-          <span>Get order details by order ID</span>
+          <span>Get detailed information about a specific order</span>
         </div>
         <div>
           <label for="orderId">Order ID:</label>
@@ -502,380 +677,119 @@
           <label for="orderByIdToken">JWT Token:</label>
           <input type="text" id="orderByIdToken" placeholder="Paste token here" />
         </div>
-        <button onclick="getOrderById()">Get Order by ID</button>
+        <button onclick="getOrderById()">View Order Details</button>
         <div class="response" id="orderByIdResponse"></div>
-      </div>
-
-      <!-- Cart Management Section -->
-      <div class="section-header">🛒 Cart Management</div>
-
-      <!-- Get Cart Section -->
-      <div class="endpoint">
-        <h2>Get My Cart</h2>
-        <div class="doc-block doc-block-get">
-          <b>GET</b> <code>/api/cart</code> &mdash; <b>Auth:</b> JWT<br/>
-          <span>Get user's shopping cart</span>
-        </div>
-        <div>
-          <label for="getCartToken">JWT Token:</label>
-          <input type="text" id="getCartToken" placeholder="Paste token here" />
-        </div>
-        <button onclick="getCart()">Get Cart</button>
-        <div class="response" id="getCartResponse"></div>
-      </div>
-
-      <!-- Add to Cart Section -->
-      <div class="endpoint">
-        <h2>Add Item to Cart</h2>
-        <div class="doc-block doc-block-post">
-          <b>POST</b> <code>/api/cart/add</code> &mdash; <b>Auth:</b> JWT<br/>
-          <span>Add item to shopping cart</span>
-        </div>
-        <div>
-          <label for="addToCartToken">JWT Token:</label>
-          <input type="text" id="addToCartToken" placeholder="Paste token here" />
-        </div>
-        <div>
-          <label for="addToCartBody">Cart Item JSON:</label>
-          <textarea id="addToCartBody" rows="6" style="width: 100%" placeholder='{"menuItemId":"", "quantity":1, "specialInstructions":""}'>{
-  "menuItemId": "REPLACE_WITH_ACTUAL_ID",
-  "quantity": 2,
-  "specialInstructions": "Extra hot, no sugar"
-}</textarea>
-        </div>
-        <button onclick="addToCart()">Add to Cart</button>
-        <div class="response" id="addToCartResponse"></div>
         <div class="sample-data">
-          <h4>💡 Note:</h4>
-          <pre>Use get-menu-ids.js to get actual menu item IDs</pre>
+          <h4>💡 Tip:</h4>
+          <pre>Use Order IDs from "View My Orders" to get detailed information about specific orders</pre>
         </div>
       </div>
 
-      <!-- Update Cart Item Section -->
-      <div class="endpoint">
-        <h2>Update Cart Item</h2>
-        <div class="doc-block doc-block-put">
-          <b>PUT</b> <code>/api/cart/update</code> &mdash; <b>Auth:</b> JWT<br/>
-          <span>Update item quantity in cart</span>
-        </div>
-        <div>
-          <label for="updateCartToken">JWT Token:</label>
-          <input type="text" id="updateCartToken" placeholder="Paste token here" />
-        </div>
-        <div>
-          <label for="updateCartBody">Update JSON:</label>
-          <textarea id="updateCartBody" rows="4" style="width: 100%" placeholder='{"menuItemId":"", "quantity":1}'>{
-  "menuItemId": "REPLACE_WITH_ACTUAL_ID",
-  "quantity": 3
-}</textarea>
-        </div>
-        <button onclick="updateCartItem()">Update Cart Item</button>
-        <div class="response" id="updateCartResponse"></div>
-      </div>
-
-      <!-- Remove from Cart Section -->
-      <div class="endpoint">
-        <h2>Remove from Cart</h2>
-        <div class="doc-block doc-block-delete">
-          <b>DELETE</b> <code>/api/cart/remove/:menuItemId</code> &mdash; <b>Auth:</b> JWT<br/>
-          <span>Remove item from cart</span>
-        </div>
-        <div>
-          <label for="removeFromCartToken">JWT Token:</label>
-          <input type="text" id="removeFromCartToken" placeholder="Paste token here" />
-        </div>
-        <div>
-          <label for="removeMenuItemId">Menu Item ID:</label>
-          <input type="text" id="removeMenuItemId" placeholder="Menu Item ID" />
-        </div>
-        <button onclick="removeFromCart()">Remove from Cart</button>
-        <div class="response" id="removeFromCartResponse"></div>
-      </div>
-
-      <!-- Clear Cart Section -->
-      <div class="endpoint">
-        <h2>Clear Cart</h2>
-        <div class="doc-block doc-block-delete">
-          <b>DELETE</b> <code>/api/cart/clear</code> &mdash; <b>Auth:</b> JWT<br/>
-          <span>Clear all items from cart</span>
-        </div>
-        <div>
-          <label for="clearCartToken">JWT Token:</label>
-          <input type="text" id="clearCartToken" placeholder="Paste token here" />
-        </div>
-        <button onclick="clearCart()">Clear Cart</button>
-        <div class="response" id="clearCartResponse"></div>
-      </div>
-
-      <!-- Apply Promo Code Section -->
-      <div class="endpoint">
-        <h2>Apply Promo Code</h2>
+      <!-- Cancel Order Section -->
+      <div class="endpoint" style="border-left: 4px solid #dc3545;">
+        <h2>Cancel Order</h2>
         <div class="doc-block doc-block-post">
-          <b>POST</b> <code>/api/cart/promo</code> &mdash; <b>Auth:</b> JWT<br/>
-          <span>Apply promo code to cart</span>
+          <b>POST</b> <code>/api/orders/:id/cancel</code> &mdash; <b>Auth:</b> JWT<br/>
+          <span>Cancel an existing order (only if not completed)</span>
         </div>
         <div>
-          <label for="promoCodeToken">JWT Token:</label>
-          <input type="text" id="promoCodeToken" placeholder="Paste token here" />
+          <label for="cancelOrderToken">JWT Token:</label>
+          <input type="text" id="cancelOrderToken" placeholder="Paste token here" />
         </div>
         <div>
-          <label for="promoCode">Promo Code:</label>
-          <input type="text" id="promoCode" placeholder="SAVE10" value="SAVE10" />
+          <label for="cancelOrderId">Order ID:</label>
+          <input type="text" id="cancelOrderId" placeholder="Order ID to cancel" />
         </div>
-        <button onclick="applyPromoCode()">Apply Promo Code</button>
-        <div class="response" id="promoCodeResponse"></div>
+        <button onclick="cancelOrder()" style="background: #dc3545; color: white;">Cancel Order</button>
+        <div class="response" id="cancelOrderResponse"></div>
         <div class="sample-data">
-          <h4>💡 Available Promo Codes:</h4>
-          <pre>SAVE10 - 10% discount
-SAVE5 - $5 discount</pre>
+          <h4>⚠️ Important Notes:</h4>
+          <ul style="text-align: left; padding-left: 20px;">
+            <li>Orders can only be cancelled if they are not completed or already cancelled</li>
+            <li>Once an order is confirmed or preparing, it cannot be cancelled</li>
+            <li>Use Order IDs from "View My Orders" to cancel specific orders</li>
+            <li>This action cannot be undone</li>
+          </ul>
         </div>
       </div>
 
-      <!-- Update Delivery Fee Section -->
-      <div class="endpoint">
-        <h2>Update Delivery Fee</h2>
-        <div class="doc-block doc-block-put">
-          <b>PUT</b> <code>/api/cart/delivery-fee</code> &mdash; <b>Auth:</b> JWT<br/>
-          <span>Update delivery fee for cart</span>
-        </div>
-        <div>
-          <label for="deliveryFeeToken">JWT Token:</label>
-          <input type="text" id="deliveryFeeToken" placeholder="Paste token here" />
-        </div>
-        <div>
-          <label for="deliveryFee">Delivery Fee:</label>
-          <input type="number" id="deliveryFee" placeholder="5.00" value="5.00" step="0.01" />
-        </div>
-        <button onclick="updateDeliveryFee()">Update Delivery Fee</button>
-        <div class="response" id="deliveryFeeResponse"></div>
-      </div>
-
-      <!-- Loyalty & Rewards Section -->
-      <div class="section-header">🎁 Loyalty & Rewards</div>
-
-      <!-- Get Loyalty Info Section -->
-      <div class="endpoint">
-        <h2>Get Loyalty Info</h2>
-        <div class="doc-block doc-block-get">
-          <b>GET</b> <code>/api/loyalty</code> &mdash; <b>Auth:</b> JWT<br/>
-          <span>Get user's loyalty points and tier</span>
-        </div>
-        <div>
-          <label for="loyaltyToken">JWT Token:</label>
-          <input type="text" id="loyaltyToken" placeholder="Paste token here" />
-        </div>
-        <button onclick="getLoyaltyInfo()">Get Loyalty Info</button>
-        <div class="response" id="loyaltyResponse"></div>
-      </div>
-
-      <!-- Get Rewards Section -->
-      <div class="endpoint">
-        <h2>Get Available Rewards</h2>
-        <div class="doc-block doc-block-get">
-          <b>GET</b> <code>/api/loyalty/rewards</code> &mdash; <b>Auth:</b> JWT<br/>
-          <span>Get available rewards based on points</span>
-        </div>
-        <div>
-          <label for="rewardsToken">JWT Token:</label>
-          <input type="text" id="rewardsToken" placeholder="Paste token here" />
-        </div>
-        <button onclick="getRewards()">Get Rewards</button>
-        <div class="response" id="rewardsResponse"></div>
-      </div>
-
-      <!-- Redeem Reward Section -->
-      <div class="endpoint">
-        <h2>Redeem Reward</h2>
+      <!-- Rate Order Section -->
+      <div class="endpoint" style="border-left: 4px solid #ffc107;">
+        <h2>Rate Order</h2>
         <div class="doc-block doc-block-post">
-          <b>POST</b> <code>/api/loyalty/redeem</code> &mdash; <b>Auth:</b> JWT<br/>
-          <span>Redeem a reward using points</span>
+          <b>POST</b> <code>/api/orders/:id/rate</code> &mdash; <b>Auth:</b> JWT<br/>
+          <span>Rate and review a completed order</span>
         </div>
         <div>
-          <label for="redeemToken">JWT Token:</label>
-          <input type="text" id="redeemToken" placeholder="Paste token here" />
+          <label for="rateOrderToken">JWT Token:</label>
+          <input type="text" id="rateOrderToken" placeholder="Paste token here" />
         </div>
         <div>
-          <label for="rewardName">Reward Name:</label>
-          <select id="rewardName">
-            <option value="Free Coffee">Free Coffee (50 points)</option>
-            <option value="$5 Off">$5 Off (100 points)</option>
-            <option value="10% Off">10% Off (200 points)</option>
-            <option value="Free Delivery">Free Delivery (75 points)</option>
-          </select>
-        </div>
-        <button onclick="redeemReward()">Redeem Reward</button>
-        <div class="response" id="redeemResponse"></div>
-      </div>
-
-      <!-- Get Loyalty Transactions Section -->
-      <div class="endpoint">
-        <h2>Get Loyalty Transactions</h2>
-        <div class="doc-block doc-block-get">
-          <b>GET</b> <code>/api/loyalty/transactions</code> &mdash; <b>Auth:</b> JWT<br/>
-          <span>Get loyalty transaction history</span>
+          <label for="rateOrderId">Order ID:</label>
+          <input type="text" id="rateOrderId" placeholder="Order ID to rate" />
         </div>
         <div>
-          <label for="transactionsToken">JWT Token:</label>
-          <input type="text" id="transactionsToken" placeholder="Paste token here" />
-        </div>
-        <button onclick="getLoyaltyTransactions()">Get Transactions</button>
-        <div class="response" id="transactionsResponse"></div>
-      </div>
-
-      <!-- Menu Section -->
-      <div class="section-header">🍽️ Menu Management</div>
-
-      <!-- Get Menu Categories Section -->
-      <div class="endpoint">
-        <h2>Get Menu Categories</h2>
-        <div class="doc-block doc-block-get">
-          <b>GET</b> <code>/api/menu/categories</code> &mdash; <b>Auth:</b> None<br/>
-          <span>Get all available menu categories with item counts</span>
-        </div>
-        <button onclick="getMenuCategories()">Get Categories</button>
-        <div class="response" id="menuCategoriesResponse"></div>
-      </div>
-
-      <!-- Get Menu Items Section -->
-      <div class="endpoint">
-        <h2>Get Menu Items</h2>
-        <div class="doc-block doc-block-get">
-          <b>GET</b> <code>/api/menu</code> &mdash; <b>Auth:</b> None<br/>
-          <span>Get all menu items with optional filtering</span>
-        </div>
-        <div>
-          <label for="menuCategory">Category:</label>
-          <select id="menuCategory">
-            <option value="">All Categories</option>
-            <option value="starter">Starters</option>
-            <option value="main">Main Dishes</option>
-            <option value="dessert">Desserts</option>
-            <option value="drink">Drinks</option>
-            <option value="special">Special</option>
+          <label for="rating">Rating (1-5):</label>
+          <select id="rating">
+            <option value="5">⭐⭐⭐⭐⭐ Excellent (5)</option>
+            <option value="4">⭐⭐⭐⭐ Very Good (4)</option>
+            <option value="3">⭐⭐⭐ Good (3)</option>
+            <option value="2">⭐⭐ Fair (2)</option>
+            <option value="1">⭐ Poor (1)</option>
           </select>
         </div>
         <div>
-          <label for="menuDietary">Dietary:</label>
-          <select id="menuDietary">
-            <option value="">All Dietary</option>
-            <option value="vegetarian">Vegetarian</option>
-            <option value="vegan">Vegan</option>
-            <option value="gluten-free">Gluten Free</option>
-            <option value="dairy-free">Dairy Free</option>
-            <option value="nut-free">Nut Free</option>
-          </select>
+          <label for="review">Review:</label>
+          <textarea id="review" rows="3" placeholder="Share your experience with the food, service, and delivery..."></textarea>
         </div>
-        <div>
-          <label for="menuSearch">Search:</label>
-          <input type="text" id="menuSearch" placeholder="Search menu items..." />
-        </div>
-        <div>
-          <label for="menuSortBy">Sort By:</label>
-          <select id="menuSortBy">
-            <option value="">Default</option>
-            <option value="name">Name</option>
-            <option value="price">Price</option>
-            <option value="preparationTime">Preparation Time</option>
-          </select>
-        </div>
-        <div>
-          <label for="menuLimit">Limit:</label>
-          <input type="number" id="menuLimit" placeholder="10" value="10" />
-        </div>
-        <div>
-          <label for="menuPage">Page:</label>
-          <input type="number" id="menuPage" placeholder="1" value="1" />
-        </div>
-        <button onclick="getMenuItems()">Get Menu Items</button>
-        <div class="response" id="menuResponse"></div>
-      </div>
-
-      <!-- Get Menu Item by ID Section -->
-      <div class="endpoint">
-        <h2>Get Menu Item by ID</h2>
-        <div class="doc-block doc-block-get">
-          <b>GET</b> <code>/api/menu/:id</code> &mdash; <b>Auth:</b> None<br/>
-          <span>Get a specific menu item by ID</span>
-        </div>
-        <div>
-          <label for="menuItemId">Menu Item ID:</label>
-          <input type="text" id="menuItemId" placeholder="Enter menu item ID" />
-        </div>
-        <button onclick="getMenuItemById()">Get Menu Item</button>
-        <div class="response" id="menuItemResponse"></div>
-      </div>
-
-      <!-- M-Pesa Payment Section -->
-      <div class="section-header">💳 M-Pesa Mobile Payments</div>
-
-      <!-- Initiate M-Pesa Payment Section -->
-      <div class="endpoint">
-        <h2>Initiate M-Pesa Payment</h2>
-        <div class="doc-block doc-block-post">
-          <b>POST</b> <code>/api/payments/mpesa/initiate</code> &mdash; <b>Auth:</b> JWT<br/>
-          <span>Initiate M-Pesa STK push payment</span>
-        </div>
-        <div>
-          <label for="mpesaToken">JWT Token:</label>
-          <input type="text" id="mpesaToken" placeholder="Paste token here" />
-        </div>
-        <div>
-          <label for="mpesaOrderId">Order ID:</label>
-          <input type="text" id="mpesaOrderId" placeholder="Enter order ID" />
-        </div>
-        <div>
-          <label for="mpesaPhoneNumber">Phone Number:</label>
-          <input type="text" id="mpesaPhoneNumber" placeholder="0712345678" />
-        </div>
-        <button onclick="initiateMpesaPayment()">Initiate Payment</button>
-        <div class="response" id="mpesaResponse"></div>
+        <button onclick="rateOrder()" style="background: #ffc107; color: #000;">Submit Rating</button>
+        <div class="response" id="rateOrderResponse"></div>
         <div class="sample-data">
-          <h4>💡 Note:</h4>
-          <pre>Phone number should be in Kenyan format (0712345678)
-You will receive an STK push notification on your phone</pre>
+          <h4>💡 Rating Guidelines:</h4>
+          <ul style="text-align: left; padding-left: 20px;">
+            <li>You can only rate completed orders</li>
+            <li>Be honest and constructive in your review</li>
+            <li>Your feedback helps improve our service</li>
+            <li>Include details about food quality, service, and delivery</li>
+          </ul>
         </div>
       </div>
 
-      <!-- Check Payment Status Section -->
-      <div class="endpoint">
-        <h2>Check Payment Status</h2>
-        <div class="doc-block doc-block-get">
-          <b>GET</b> <code>/api/payments/status/:paymentId</code> &mdash; <b>Auth:</b> JWT<br/>
-          <span>Check the status of a payment</span>
+      <!-- Quick Actions Section -->
+      <div class="endpoint" style="background: #e8f5e8; border-left: 4px solid #28a745;">
+        <h2>🚀 Quick Actions</h2>
+        <div class="sample-data">
+          <h4>Common Workflows:</h4>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; margin-top: 15px;">
+            <div style="background: white; padding: 15px; border-radius: 8px; border: 1px solid #ddd;">
+              <h5>🛒 New Order</h5>
+              <ol style="font-size: 14px; padding-left: 20px;">
+                <li>Add items to cart</li>
+                <li>Review cart contents</li>
+                <li>Proceed to checkout</li>
+                <li>Complete order</li>
+              </ol>
+            </div>
+            <div style="background: white; padding: 15px; border-radius: 8px; border: 1px solid #ddd;">
+              <h5>📋 Track Orders</h5>
+              <ol style="font-size: 14px; padding-left: 20px;">
+                <li>View all your orders</li>
+                <li>Check order status</li>
+                <li>Get order details</li>
+                <li>Rate completed orders</li>
+              </ol>
+            </div>
+            <div style="background: white; padding: 15px; border-radius: 8px; border: 1px solid #ddd;">
+              <h5>❌ Cancel Order</h5>
+              <ol style="font-size: 14px; padding-left: 20px;">
+                <li>Find order ID</li>
+                <li>Check order status</li>
+                <li>Cancel if eligible</li>
+                <li>Confirm cancellation</li>
+              </ol>
+            </div>
+          </div>
         </div>
-        <div>
-          <label for="paymentStatusToken">JWT Token:</label>
-          <input type="text" id="paymentStatusToken" placeholder="Paste token here" />
-        </div>
-        <div>
-          <label for="paymentId">Payment ID:</label>
-          <input type="text" id="paymentId" placeholder="Enter payment ID" />
-        </div>
-        <button onclick="checkPaymentStatus()">Check Status</button>
-        <div class="response" id="paymentStatusResponse"></div>
-      </div>
-
-      <!-- Get Payment History Section -->
-      <div class="endpoint">
-        <h2>Get Payment History</h2>
-        <div class="doc-block doc-block-get">
-          <b>GET</b> <code>/api/payments/history</code> &mdash; <b>Auth:</b> JWT<br/>
-          <span>Get user's payment history</span>
-        </div>
-        <div>
-          <label for="paymentHistoryToken">JWT Token:</label>
-          <input type="text" id="paymentHistoryToken" placeholder="Paste token here" />
-        </div>
-        <div>
-          <label for="paymentHistoryPage">Page:</label>
-          <input type="number" id="paymentHistoryPage" placeholder="1" value="1" />
-        </div>
-        <div>
-          <label for="paymentHistoryLimit">Limit:</label>
-          <input type="number" id="paymentHistoryLimit" placeholder="10" value="10" />
-        </div>
-        <button onclick="getPaymentHistory()">Get Payment History</button>
-        <div class="response" id="paymentHistoryResponse"></div>
       </div>
     </div>
 
@@ -889,8 +803,9 @@ You will receive an STK push notification on your phone</pre>
           'orderByIdToken', 'phoneOtpToken', 'verifyPhoneToken', 
           'emailOtpToken', 'verifyEmailToken', 'getCartToken', 
           'addToCartToken', 'updateCartToken', 'removeFromCartToken',
-          'clearCartToken', 'promoCodeToken', 'deliveryFeeToken',
-          'loyaltyToken', 'rewardsToken', 'redeemToken', 'transactionsToken',
+          'clearCartToken', 'cancelOrderToken', 'rateOrderToken',
+          'promoCodeToken', 'deliveryFeeToken', 'loyaltyToken', 
+          'rewardsToken', 'redeemToken', 'transactionsToken',
           'mpesaToken', 'paymentStatusToken', 'paymentHistoryToken'
         ];
         tokenFields.forEach(fieldId => {
@@ -1258,38 +1173,54 @@ You will receive an STK push notification on your phone</pre>
 
       async function addToCart() {
         const token = document.getElementById("addToCartToken").value || authToken;
-        const cartBody = document.getElementById("addToCartBody").value;
+        const menuItemId = document.getElementById("menuItemId").value;
+        const itemName = document.getElementById("itemName").value;
+        const itemPrice = document.getElementById("itemPrice").value;
+        const itemQuantity = document.getElementById("itemQuantity").value;
+        const specialInstructions = document.getElementById("specialInstructions").value;
         const responseElement = document.getElementById("addToCartResponse");
 
         if (!token) {
-          responseElement.innerHTML = '<pre style="color:red;">Error: No token provided. Please login first.</pre>';
+          showError('No token provided. Please login first.', 'addToCartResponse');
           return;
         }
-        responseElement.innerHTML = "<pre>Loading...</pre>";
-        let bodyObj;
-        try {
-          bodyObj = JSON.parse(cartBody);
-        } catch (e) {
-          responseElement.innerHTML = '<pre style="color:red;">Error: Invalid JSON body</pre>';
+        if (!menuItemId || !itemName || !itemPrice || !itemQuantity) {
+          showError('Menu Item ID, Name, Price, and Quantity are required.', 'addToCartResponse');
           return;
         }
+        
+        const cartItem = {
+          menuItemId: menuItemId,
+          name: itemName,
+          price: parseFloat(itemPrice),
+          quantity: parseInt(itemQuantity),
+          specialInstructions: specialInstructions || ""
+        };
+
+        showLoading('Adding item to cart...', 'addToCartResponse');
         try {
-          const response = await fetch("/api/cart/add", {
+          const response = await fetch("/api/orders/cart/add", {
             method: "POST",
             headers: {
               Authorization: `Bearer ${token}`,
               "Content-Type": "application/json",
             },
-            body: JSON.stringify(bodyObj),
+            body: JSON.stringify(cartItem),
           });
           const data = await response.json();
           if (response.ok) {
-            responseElement.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            showSuccess(`Item "${itemName}" added to cart successfully!`, 'addToCartResponse');
+            // Clear form after successful add
+            document.getElementById("menuItemId").value = "";
+            document.getElementById("itemName").value = "";
+            document.getElementById("itemPrice").value = "";
+            document.getElementById("itemQuantity").value = "1";
+            document.getElementById("specialInstructions").value = "";
           } else {
-            responseElement.innerHTML = `<pre style="color:red;">Error ${response.status}: ${data.message || "Request failed"}</pre>`;
+            showError(`${data.message || "Failed to add item to cart"}`, 'addToCartResponse');
           }
         } catch (error) {
-          responseElement.innerHTML = `<pre style="color:red;">Error: ${error.message}</pre>`;
+          showError(`Error: ${error.message}`, 'addToCartResponse');
         }
       }
 
@@ -1657,6 +1588,444 @@ You will receive an STK push notification on your phone</pre>
           }
         } catch (error) {
           responseElement.innerHTML = `<pre style="color:red;">Error: ${error.message}</pre>`;
+        }
+      }
+
+      // Cart Functions
+      async function getCart() {
+        const token = document.getElementById("getCartToken").value || authToken;
+        const responseElement = document.getElementById("getCartResponse");
+
+        if (!token) {
+          responseElement.innerHTML = '<pre style="color:red;">Error: No token provided. Please login first.</pre>';
+          return;
+        }
+        responseElement.innerHTML = "<pre>Loading...</pre>";
+        try {
+          const response = await fetch("/api/orders/cart", {
+            method: "GET",
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const data = await response.json();
+          if (response.ok) {
+            responseElement.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+          } else {
+            responseElement.innerHTML = `<pre style="color:red;">Error ${response.status}: ${data.message || "Request failed"}</pre>`;
+          }
+        } catch (error) {
+          responseElement.innerHTML = `<pre style="color:red;">Error: ${error.message}</pre>`;
+        }
+      }
+
+      async function addToCart() {
+        const token = document.getElementById("addToCartToken").value || authToken;
+        const menuItemId = document.getElementById("menuItemId").value;
+        const itemQuantity = document.getElementById("itemQuantity").value;
+        const specialInstructions = document.getElementById("specialInstructions").value;
+        const responseElement = document.getElementById("addToCartResponse");
+
+        if (!token) {
+          showError('No token provided. Please login first.', 'addToCartResponse');
+          return;
+        }
+        if (!menuItemId || !itemQuantity) {
+          showError('Menu Item ID and Quantity are required.', 'addToCartResponse');
+          return;
+        }
+        
+        const cartItem = {
+          menuItemId: menuItemId,
+          quantity: parseInt(itemQuantity),
+          specialInstructions: specialInstructions || ""
+        };
+
+        showLoading('Adding item to cart...', 'addToCartResponse');
+        try {
+          const response = await fetch("/api/orders/cart/add", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(cartItem),
+          });
+          const data = await response.json();
+          if (response.ok) {
+            showSuccess(`Item added to cart successfully!`, 'addToCartResponse');
+            responseElement.innerHTML += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            // Clear form after successful add
+            document.getElementById("menuItemId").value = "";
+            document.getElementById("itemQuantity").value = "1";
+            document.getElementById("specialInstructions").value = "";
+          } else {
+            showError(`${data.message || "Failed to add item to cart"}`, 'addToCartResponse');
+          }
+        } catch (error) {
+          showError(`Error: ${error.message}`, 'addToCartResponse');
+        }
+      }
+
+      function quickAddItem(name, menuItemId) {
+        document.getElementById("menuItemId").value = menuItemId;
+        document.getElementById("itemQuantity").value = "1";
+        document.getElementById("specialInstructions").value = "";
+      }
+
+      async function updateCartItem() {
+        const token = document.getElementById("updateCartToken").value || authToken;
+        const menuItemId = document.getElementById("updateCartItemId").value;
+        const quantity = document.getElementById("updateQuantity").value;
+        const specialInstructions = document.getElementById("updateSpecialInstructions").value;
+        const responseElement = document.getElementById("updateCartResponse");
+
+        if (!token) {
+          responseElement.innerHTML = '<pre style="color:red;">Error: No token provided. Please login first.</pre>';
+          return;
+        }
+        if (!menuItemId) {
+          responseElement.innerHTML = '<pre style="color:red;">Error: Menu item ID is required.</pre>';
+          return;
+        }
+        
+        const updateData = {};
+        if (quantity) updateData.quantity = parseInt(quantity);
+        if (specialInstructions !== undefined) updateData.specialInstructions = specialInstructions;
+
+        responseElement.innerHTML = "<pre>Loading...</pre>";
+        try {
+          const response = await fetch(`/api/orders/cart/update/${menuItemId}`, {
+            method: "PUT",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(updateData),
+          });
+          const data = await response.json();
+          if (response.ok) {
+            responseElement.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            // Clear form after successful update
+            document.getElementById("updateCartItemId").value = "";
+            document.getElementById("updateQuantity").value = "";
+            document.getElementById("updateSpecialInstructions").value = "";
+          } else {
+            responseElement.innerHTML = `<pre style="color:red;">Error ${response.status}: ${data.message || "Request failed"}</pre>`;
+          }
+        } catch (error) {
+          responseElement.innerHTML = `<pre style="color:red;">Error: ${error.message}</pre>`;
+        }
+      }
+
+      async function removeFromCart() {
+        const token = document.getElementById("removeFromCartToken").value || authToken;
+        const menuItemId = document.getElementById("removeCartItemId").value;
+        const responseElement = document.getElementById("removeFromCartResponse");
+
+        if (!token) {
+          responseElement.innerHTML = '<pre style="color:red;">Error: No token provided. Please login first.</pre>';
+          return;
+        }
+        if (!menuItemId) {
+          responseElement.innerHTML = '<pre style="color:red;">Error: Menu item ID is required.</pre>';
+          return;
+        }
+        responseElement.innerHTML = "<pre>Loading...</pre>";
+        try {
+          const response = await fetch(`/api/orders/cart/remove/${menuItemId}`, {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const data = await response.json();
+          if (response.ok) {
+            responseElement.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            // Clear form after successful removal
+            document.getElementById("removeCartItemId").value = "";
+          } else {
+            responseElement.innerHTML = `<pre style="color:red;">Error ${response.status}: ${data.message || "Request failed"}</pre>`;
+          }
+        } catch (error) {
+          responseElement.innerHTML = `<pre style="color:red;">Error: ${error.message}</pre>`;
+        }
+      }
+
+      async function clearCart() {
+        const token = document.getElementById("clearCartToken").value || authToken;
+        const responseElement = document.getElementById("clearCartResponse");
+
+        if (!token) {
+          responseElement.innerHTML = '<pre style="color:red;">Error: No token provided. Please login first.</pre>';
+          return;
+        }
+        responseElement.innerHTML = "<pre>Loading...</pre>";
+        try {
+          const response = await fetch("/api/orders/cart/clear", {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const data = await response.json();
+          if (response.ok) {
+            responseElement.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+          } else {
+            responseElement.innerHTML = `<pre style="color:red;">Error ${response.status}: ${data.message || "Request failed"}</pre>`;
+          }
+        } catch (error) {
+          responseElement.innerHTML = `<pre style="color:red;">Error: ${error.message}</pre>`;
+        }
+      }
+
+      // Checkout and Order Functions
+      async function checkoutAndCreateOrder() {
+        const token = document.getElementById("createOrderToken").value || authToken;
+        const serviceType = document.getElementById("serviceType").value;
+        const paymentMethod = document.getElementById("paymentMethod").value;
+        const promoCode = document.getElementById("promoCode").value;
+        const responseElement = document.getElementById("createOrderResponse");
+
+        if (!token) {
+          showError('No token provided. Please login first.', 'createOrderResponse');
+          return;
+        }
+
+        // First, fetch the current cart data
+        showLoading('Loading cart data...', 'createOrderResponse');
+        try {
+          const cartResponse = await fetch("/api/orders/cart", {
+            method: "GET",
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          
+          if (!cartResponse.ok) {
+            showError('Failed to fetch cart data', 'createOrderResponse');
+            return;
+          }
+          
+          const cartData = await cartResponse.json();
+          
+          if (!cartData.success || !cartData.data || cartData.data.items.length === 0) {
+            showError('Cart is empty. Please add items to cart before checkout.', 'createOrderResponse');
+            return;
+          }
+
+          // Build order data from actual cart
+          const orderData = {
+            items: cartData.data.items,
+            serviceType: serviceType,
+            paymentMethod: paymentMethod
+          };
+
+          // Add M-Pesa phone number if M-Pesa payment method
+          if (paymentMethod === 'mpesa') {
+            const mpesaPhoneNumber = document.getElementById("mpesaPhoneNumber").value;
+            if (!mpesaPhoneNumber) {
+              showError('M-Pesa phone number is required for M-Pesa payments.', 'createOrderResponse');
+              return;
+            }
+            orderData.mpesaPhoneNumber = mpesaPhoneNumber;
+          }
+
+          // Add delivery address if delivery service
+          if (serviceType === 'delivery') {
+            const street = document.getElementById("deliveryStreet").value;
+            const city = document.getElementById("deliveryCity").value;
+            const lat = document.getElementById("deliveryLat").value;
+            const lng = document.getElementById("deliveryLng").value;
+            
+            if (!street || !city) {
+              showError('Delivery address is required for delivery orders.', 'createOrderResponse');
+              return;
+            }
+            
+            orderData.deliveryAddress = {
+              street: street,
+              city: city,
+              coordinates: {
+                lat: parseFloat(lat) || -1.2921,
+                lng: parseFloat(lng) || 36.8219
+              }
+            };
+          }
+
+          if (promoCode) {
+            orderData.promoCode = promoCode;
+          }
+
+          showLoading('Creating order from cart...', 'createOrderResponse');
+          
+          const response = await fetch("/api/orders", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(orderData),
+          });
+          const data = await response.json();
+          if (response.ok) {
+            const totalAmount = formatCurrency(data.data.totalAmount);
+            showSuccess(`Order created successfully! Total: ${totalAmount}`, 'createOrderResponse');
+            responseElement.innerHTML += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            
+            // Clear cart after successful order creation
+            try {
+              await fetch("/api/orders/cart/clear", {
+                method: "DELETE",
+                headers: { Authorization: `Bearer ${token}` },
+              });
+            } catch (clearError) {
+              console.log("Cart clear error:", clearError);
+            }
+            
+            // Clear form after successful order
+            document.getElementById("promoCode").value = "";
+            document.getElementById("deliveryStreet").value = "";
+            document.getElementById("deliveryCity").value = "";
+            document.getElementById("deliveryLat").value = "";
+            document.getElementById("deliveryLng").value = "";
+          } else {
+            showError(`${data.message || "Request failed"}`, 'createOrderResponse');
+          }
+        } catch (error) {
+          showError(`Error: ${error.message}`, 'createOrderResponse');
+        }
+      }
+
+      async function cancelOrder() {
+        const token = document.getElementById("cancelOrderToken").value || authToken;
+        const orderId = document.getElementById("cancelOrderId").value;
+        const responseElement = document.getElementById("cancelOrderResponse");
+
+        if (!token) {
+          responseElement.innerHTML = '<pre style="color:red;">Error: No token provided. Please login first.</pre>';
+          return;
+        }
+        if (!orderId) {
+          responseElement.innerHTML = '<pre style="color:red;">Error: Order ID is required.</pre>';
+          return;
+        }
+        responseElement.innerHTML = "<pre>Loading...</pre>";
+        try {
+          const response = await fetch(`/api/orders/${orderId}/cancel`, {
+            method: "POST",
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const data = await response.json();
+          if (response.ok) {
+            responseElement.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            // Clear form after successful cancellation
+            document.getElementById("cancelOrderId").value = "";
+          } else {
+            responseElement.innerHTML = `<pre style="color:red;">Error ${response.status}: ${data.message || "Request failed"}</pre>`;
+          }
+        } catch (error) {
+          responseElement.innerHTML = `<pre style="color:red;">Error: ${error.message}</pre>`;
+        }
+      }
+
+      async function rateOrder() {
+        const token = document.getElementById("rateOrderToken").value || authToken;
+        const orderId = document.getElementById("rateOrderId").value;
+        const rating = document.getElementById("rating").value;
+        const review = document.getElementById("review").value;
+        const responseElement = document.getElementById("rateOrderResponse");
+
+        if (!token) {
+          responseElement.innerHTML = '<pre style="color:red;">Error: No token provided. Please login first.</pre>';
+          return;
+        }
+        if (!orderId || !rating) {
+          responseElement.innerHTML = '<pre style="color:red;">Error: Order ID and Rating are required.</pre>';
+          return;
+        }
+        
+        const ratingData = {
+          rating: parseInt(rating),
+          review: review || ""
+        };
+
+        responseElement.innerHTML = "<pre>Loading...</pre>";
+        try {
+          const response = await fetch(`/api/orders/${orderId}/rate`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(ratingData),
+          });
+          const data = await response.json();
+          if (response.ok) {
+            responseElement.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+            // Clear form after successful rating
+            document.getElementById("rateOrderId").value = "";
+            document.getElementById("rating").value = "";
+            document.getElementById("review").value = "";
+          } else {
+            responseElement.innerHTML = `<pre style="color:red;">Error ${response.status}: ${data.message || "Request failed"}</pre>`;
+          }
+        } catch (error) {
+          responseElement.innerHTML = `<pre style="color:red;">Error: ${error.message}</pre>`;
+        }
+      }
+
+      // Toggle delivery address section based on service type
+      function toggleDeliveryAddress() {
+        const serviceType = document.getElementById("serviceType").value;
+        const deliverySection = document.getElementById("deliveryAddressSection");
+        if (serviceType === "delivery") {
+          deliverySection.style.display = "block";
+        } else {
+          deliverySection.style.display = "none";
+        }
+      }
+
+      // Toggle M-Pesa phone field based on payment method
+      function toggleMpesaPhoneField() {
+        const paymentMethod = document.getElementById("paymentMethod").value;
+        const mpesaPhoneField = document.getElementById("mpesaPhoneField");
+        if (paymentMethod === "mpesa") {
+          mpesaPhoneField.style.display = "block";
+        } else {
+          mpesaPhoneField.style.display = "none";
+        }
+      }
+
+      // Add event listener for service type change
+      document.addEventListener('DOMContentLoaded', function() {
+        const serviceTypeSelect = document.getElementById("serviceType");
+        if (serviceTypeSelect) {
+          serviceTypeSelect.addEventListener('change', toggleDeliveryAddress);
+        }
+      });
+
+      // Helper function to format currency
+      function formatCurrency(amount) {
+        return new Intl.NumberFormat('en-KE', {
+          style: 'currency',
+          currency: 'KES'
+        }).format(amount);
+      }
+
+      // Helper function to show success message
+      function showSuccess(message, elementId) {
+        const element = document.getElementById(elementId);
+        if (element) {
+          element.innerHTML = `<pre style="color: #28a745; background: #d4edda; padding: 10px; border-radius: 4px;">✅ ${message}</pre>`;
+        }
+      }
+
+      // Helper function to show error message
+      function showError(message, elementId) {
+        const element = document.getElementById(elementId);
+        if (element) {
+          element.innerHTML = `<pre style="color: #dc3545; background: #f8d7da; padding: 10px; border-radius: 4px;">❌ ${message}</pre>`;
+        }
+      }
+
+      // Helper function to show loading message
+      function showLoading(message, elementId) {
+        const element = document.getElementById(elementId);
+        if (element) {
+          element.innerHTML = `<pre style="color: #007bff; background: #d1ecf1; padding: 10px; border-radius: 4px;">⏳ ${message}</pre>`;
         }
       }
 

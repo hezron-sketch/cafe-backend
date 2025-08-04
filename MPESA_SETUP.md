@@ -1,164 +1,202 @@
-# M-Pesa Integration Setup
+# M-Pesa Integration Setup Guide
 
-This guide explains how to set up M-Pesa mobile payment integration for the cafe backend.
+## Overview
+This guide explains how to set up M-Pesa STK Push integration for the cafe ordering system.
 
 ## Prerequisites
-
-1. M-Pesa Developer Account (https://developer.safaricom.co.ke/)
-2. Business Short Code (BSC)
-3. Consumer Key and Secret
-4. Passkey
+1. Safaricom Developer Account
+2. M-Pesa API credentials
+3. Valid business shortcode
+4. Passkey from Safaricom
 
 ## Environment Variables
 
-Add the following variables to your `.env` file:
+Add these variables to your `.env` file:
 
 ```env
 # M-Pesa Configuration
 MPESA_BASE_URL=https://sandbox.safaricom.co.ke
-MPESA_BUSINESS_SHORT_CODE=174379
+MPESA_CONSUMER_KEY=your_mpesa_consumer_key_here
+MPESA_CONSUMER_SECRET=your_mpesa_consumer_secret_here
 MPESA_PASSKEY=your_mpesa_passkey_here
-MPESA_CONSUMER_KEY=your_consumer_key_here
-MPESA_CONSUMER_SECRET=your_consumer_secret_here
-MPESA_CALLBACK_URL=https://your-domain.com/api/payments/mpesa/callback
+MPESA_SHORTCODE=your_mpesa_shortcode_here
+MPESA_CALLBACK_URL=https://your-domain.com/api/orders/mpesa/callback
 ```
-
-## Getting M-Pesa Credentials
-
-1. **Register for M-Pesa Developer Account**
-   - Go to https://developer.safaricom.co.ke/
-   - Create an account and verify your email
-
-2. **Create an App**
-   - Log in to your developer account
-   - Create a new app for your cafe
-   - Note down the Consumer Key and Consumer Secret
-
-3. **Get Business Short Code**
-   - Apply for a Business Short Code through Safaricom
-   - This is your unique merchant code
-
-4. **Generate Passkey**
-   - Use the M-Pesa API to generate your passkey
-   - This is used for API authentication
-
-## Testing
-
-### Sandbox Environment
-- Use the sandbox URL: `https://sandbox.safaricom.co.ke`
-- Test with sandbox phone numbers provided by Safaricom
-- Use test Business Short Code: `174379`
-
-### Production Environment
-- Use the production URL: `https://api.safaricom.co.ke`
-- Use your actual Business Short Code
-- Use real phone numbers
 
 ## API Endpoints
 
-### Initiate Payment
-```
-POST /api/payments/mpesa/initiate
+### 1. Create Order with M-Pesa Payment
+```http
+POST /api/orders
+Authorization: Bearer <jwt_token>
+Content-Type: application/json
+
 {
-  "orderId": "order_id",
-  "phoneNumber": "0712345678"
+  "items": [...],
+  "serviceType": "delivery",
+  "paymentMethod": "mpesa",
+  "mpesaPhoneNumber": "0712345678",
+  "deliveryAddress": {...}
 }
 ```
 
-### Check Payment Status
-```
-GET /api/payments/status/:paymentId
+**Response:**
+```json
+{
+  "success": true,
+  "message": "Order created and M-Pesa STK push initiated",
+  "data": {
+    "order": {...},
+    "mpesa": {
+      "checkoutRequestID": "ws_CO_123456789",
+      "merchantRequestID": "12345-12345678-1",
+      "customerMessage": "Success. Request accepted for processing",
+      "responseCode": "0"
+    }
+  }
+}
 ```
 
-### Payment History
+### 2. M-Pesa Callback (Webhook)
+```http
+POST /api/orders/mpesa/callback
+Content-Type: application/json
+
+{
+  "Body": {
+    "stkCallback": {
+      "CheckoutRequestID": "ws_CO_123456789",
+      "ResultCode": 0,
+      "ResultDesc": "The service request is processed successfully.",
+      "CallbackMetadata": {
+        "Item": [
+          {"Name": "Amount", "Value": 100},
+          {"Name": "MpesaReceiptNumber", "Value": "QK12345678"},
+          {"Name": "TransactionDate", "Value": "20250104123456"},
+          {"Name": "PhoneNumber", "Value": "254712345678"}
+        ]
+      }
+    }
+  }
+}
 ```
-GET /api/payments/history?page=1&limit=10
+
+### 3. Verify Payment Status
+```http
+GET /api/orders/mpesa/verify/:checkoutRequestID
+Authorization: Bearer <jwt_token>
 ```
 
-### M-Pesa Callback
+## Order Status Flow
+
+1. **pending_payment** - Order created, waiting for M-Pesa payment
+2. **pending** - Payment received, order confirmed
+3. **confirmed** - Restaurant confirmed order
+4. **preparing** - Food being prepared
+5. **out-for-delivery** - Order on the way
+6. **delivered** - Order completed
+7. **cancelled** - Order cancelled
+
+## M-Pesa Fields in Order Model
+
+```javascript
+// M-Pesa payment fields
+mpesaPhoneNumber: { type: String },
+mpesaCheckoutRequestID: { type: String },
+mpesaMerchantRequestID: { type: String },
+mpesaTransactionID: { type: String },
+mpesaTransactionDate: { type: String },
+mpesaAmount: { type: Number },
+mpesaResultCode: { type: Number },
+mpesaResultDesc: { type: String }
 ```
-POST /api/payments/mpesa/callback
-```
 
-## Flutter App Integration
+## Testing
 
-The Flutter app includes:
-- Payment screen with M-Pesa integration
-- Phone number validation
-- Payment status tracking
-- Error handling
+### Sandbox Testing
+1. Use sandbox URLs and credentials
+2. Test with sandbox phone numbers
+3. Use test amounts (1 KES minimum)
 
-## Testing the Integration
+### Production Setup
+1. Replace sandbox URLs with production URLs
+2. Use real M-Pesa credentials
+3. Configure proper callback URLs
+4. Test with real phone numbers
 
-1. Start the backend server
-2. Run the Flutter app
-3. Create an order
-4. Navigate to payment screen
-5. Enter a test phone number
-6. Tap "Pay with M-Pesa"
-7. Check for STK push notification
+## Error Handling
+
+Common M-Pesa errors:
+- `BUSY` - System busy, retry later
+- `TIMEOUT` - Request timeout
+- `INVALID_AMOUNT` - Amount not allowed
+- `INVALID_PHONE_NUMBER` - Invalid phone format
+- `INSUFFICIENT_FUNDS` - Insufficient M-Pesa balance
+
+## Security Considerations
+
+1. **Phone Number Validation**: Ensure proper Kenyan phone number format
+2. **Amount Validation**: M-Pesa requires integer amounts
+3. **Callback Verification**: Verify callback authenticity
+4. **Error Handling**: Handle all possible M-Pesa response codes
+5. **Logging**: Log all M-Pesa transactions for audit
+
+## Integration Steps
+
+1. **Setup Environment Variables**
+   ```bash
+   cp .env.example .env
+   # Edit .env with your M-Pesa credentials
+   ```
+
+2. **Install Dependencies**
+   ```bash
+   npm install axios crypto
+   ```
+
+3. **Test Integration**
+   ```bash
+   # Test with sandbox credentials first
+   curl -X POST /api/orders \
+     -H "Authorization: Bearer <token>" \
+     -d '{
+       "items": [...],
+       "paymentMethod": "mpesa",
+       "mpesaPhoneNumber": "254708374149"
+     }'
+   ```
+
+4. **Monitor Callbacks**
+   ```bash
+   # Check server logs for callback processing
+   tail -f logs/app.log
+   ```
 
 ## Troubleshooting
 
 ### Common Issues
 
-1. **Invalid Credentials**
-   - Verify your Consumer Key and Secret
-   - Check Business Short Code format
+1. **Access Token Errors**
+   - Check consumer key and secret
+   - Verify API endpoint URLs
 
-2. **Phone Number Format**
-   - Use Kenyan format: 0712345678
-   - Remove +254 prefix
+2. **STK Push Failures**
+   - Validate phone number format
+   - Check amount (must be integer)
+   - Verify shortcode and passkey
 
-3. **Callback URL**
-   - Ensure your server is accessible
-   - Use HTTPS for production
+3. **Callback Issues**
+   - Ensure callback URL is accessible
+   - Check server logs for errors
+   - Verify callback data structure
 
-4. **Network Issues**
-   - Check internet connectivity
-   - Verify firewall settings
+4. **Payment Verification**
+   - Use correct checkout request ID
+   - Check payment status timing
 
-### Error Codes
+## Support
 
-- `0`: Success
-- `1032`: User cancelled
-- `1037`: Request timeout
-- `1038`: Invalid transaction
-- `1039`: Invalid amount
-- `1040`: Invalid phone number
-
-## Security Considerations
-
-1. **Environment Variables**
-   - Never commit credentials to version control
-   - Use secure environment variable management
-
-2. **HTTPS**
-   - Always use HTTPS in production
-   - Secure your callback URL
-
-3. **Input Validation**
-   - Validate phone numbers
-   - Sanitize all inputs
-
-4. **Error Handling**
-   - Log errors securely
-   - Don't expose sensitive information
-
-## Production Deployment
-
-1. **SSL Certificate**
-   - Install valid SSL certificate
-   - Update callback URL to HTTPS
-
-2. **Database**
-   - Use production database
-   - Backup payment records
-
-3. **Monitoring**
-   - Monitor payment success rates
-   - Set up error alerts
-
-4. **Compliance**
-   - Follow M-Pesa terms of service
-   - Implement proper logging 
+For M-Pesa API issues:
+- Safaricom Developer Portal: https://developer.safaricom.co.ke
+- M-Pesa API Documentation: https://developer.safaricom.co.ke/docs
+- Support Email: apisupport@safaricom.co.ke 

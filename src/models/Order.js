@@ -50,11 +50,22 @@ const orderSchema = new Schema({
   },
   orderStatus: { 
     type: String, 
-    enum: ['pending', 'confirmed', 'preparing', 'out-for-delivery', 'delivered', 'cancelled'],
+    enum: ['pending', 'pending_payment', 'confirmed', 'preparing', 'out-for-delivery', 'delivered', 'cancelled'],
     default: 'pending'
   },
   promoCode: { type: String },
   discountApplied: { type: Number, default: 0 },
+  
+  // M-Pesa payment fields
+  mpesaPhoneNumber: { type: String },
+  mpesaCheckoutRequestID: { type: String },
+  mpesaMerchantRequestID: { type: String },
+  mpesaTransactionID: { type: String },
+  mpesaTransactionDate: { type: String },
+  mpesaAmount: { type: Number },
+  mpesaResultCode: { type: Number },
+  mpesaResultDesc: { type: String },
+  
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
 });
