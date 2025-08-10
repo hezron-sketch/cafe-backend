@@ -611,10 +611,10 @@ This prevents price manipulation and ensures data consistency.</pre>
             <option value="cash">Cash</option>
           </select>
         </div>
-        <div id="mpesaPhoneField" style="display: none;">
-          <label for="mpesaPhoneNumber">M-Pesa Phone Number:</label>
-          <input type="tel" id="mpesaPhoneNumber" placeholder="e.g., 0712345678 or +254712345678" />
-          <small style="color: #666;">Enter your M-Pesa registered phone number</small>
+        <div id="mpesaPhoneField" style="display: none; background: #f8f9fa; padding: 15px; border-radius: 5px; border-left: 4px solid #28a745; margin: 10px 0;">
+          <label for="mpesaPhoneNumber"><strong>M-Pesa Phone Number:</strong></label>
+          <input type="tel" id="mpesaPhoneNumber" placeholder="e.g., 0712345678 or +254712345678" style="width: 100%; padding: 8px; margin: 5px 0; border: 1px solid #ddd; border-radius: 4px;" />
+          <small style="color: #666; display: block; margin-top: 5px;">📱 Enter your M-Pesa registered phone number. You will receive an STK push to complete payment.</small>
         </div>
         <div>
           <label for="promoCode">Promo Code (Optional):</label>
@@ -629,10 +629,21 @@ This prevents price manipulation and ensures data consistency.</pre>
             <li>Review cart using "Get Cart"</li>
             <li>Update quantities if needed</li>
             <li>Choose service type and payment method</li>
+            <li><strong>For M-Pesa:</strong> Enter your phone number when M-Pesa is selected</li>
             <li>Fill delivery address if choosing delivery</li>
             <li>Click "Checkout & Create Order" to complete purchase</li>
             <li>Cart will be automatically cleared after successful order</li>
           </ol>
+          <div style="background: #e7f3ff; padding: 10px; border-radius: 5px; margin-top: 10px;">
+            <h5>💡 M-Pesa Integration:</h5>
+            <ul style="text-align: left; padding-left: 20px; margin: 0;">
+              <li>Select "M-Pesa" as payment method</li>
+              <li>Enter your M-Pesa registered phone number</li>
+              <li>You'll receive an STK push on your phone</li>
+              <li>Enter your M-Pesa PIN to complete payment</li>
+              <li>Order status will update automatically</li>
+            </ul>
+          </div>
         </div>
       </div>
 
@@ -682,6 +693,37 @@ This prevents price manipulation and ensures data consistency.</pre>
         <div class="sample-data">
           <h4>💡 Tip:</h4>
           <pre>Use Order IDs from "View My Orders" to get detailed information about specific orders</pre>
+        </div>
+      </div>
+
+      <!-- M-Pesa Payment Verification Section -->
+      <div class="endpoint" style="border-left: 4px solid #28a745;">
+        <h2>Verify M-Pesa Payment</h2>
+        <div class="doc-block doc-block-get">
+          <b>GET</b> <code>/api/orders/mpesa/verify/:checkoutRequestID</code> &mdash; <b>Auth:</b> JWT<br/>
+          <span>Verify the status of an M-Pesa payment using the checkout request ID</span>
+        </div>
+        <div>
+          <label for="mpesaVerifyToken">JWT Token:</label>
+          <input type="text" id="mpesaVerifyToken" placeholder="Paste token here" />
+        </div>
+        <div>
+          <label for="checkoutRequestID">Checkout Request ID:</label>
+          <input type="text" id="checkoutRequestID" placeholder="ws_CO_123456789" />
+          <small style="color: #666;">Get this from the order creation response</small>
+        </div>
+        <button onclick="verifyMpesaPayment()" style="background: #28a745; color: white;">Verify Payment</button>
+        <div class="response" id="mpesaVerifyResponse"></div>
+        <div class="sample-data">
+          <h4>💡 M-Pesa Payment Flow:</h4>
+          <ol style="text-align: left; padding-left: 20px;">
+            <li>Create order with M-Pesa payment method</li>
+            <li>Receive checkout request ID in response</li>
+            <li>User receives STK push on phone</li>
+            <li>User enters M-Pesa PIN</li>
+            <li>Use this endpoint to verify payment status</li>
+            <li>Check order status for final confirmation</li>
+          </ol>
         </div>
       </div>
 
@@ -1921,6 +1963,40 @@ This prevents price manipulation and ensures data consistency.</pre>
         }
       }
 
+      // M-Pesa Payment Verification
+      async function verifyMpesaPayment() {
+        const token = document.getElementById("mpesaVerifyToken").value || authToken;
+        const checkoutRequestID = document.getElementById("checkoutRequestID").value;
+        const responseElement = document.getElementById("mpesaVerifyResponse");
+
+        if (!token) {
+          showError('No token provided. Please login first.', 'mpesaVerifyResponse');
+          return;
+        }
+
+        if (!checkoutRequestID) {
+          showError('Checkout Request ID is required.', 'mpesaVerifyResponse');
+          return;
+        }
+
+        showLoading('Verifying payment status...', 'mpesaVerifyResponse');
+        try {
+          const response = await fetch(`/api/orders/mpesa/verify/${checkoutRequestID}`, {
+            method: "GET",
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const data = await response.json();
+          if (response.ok) {
+            showSuccess('Payment verification completed successfully!', 'mpesaVerifyResponse');
+            responseElement.innerHTML += `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+          } else {
+            showError(`${data.message || "Request failed"}`, 'mpesaVerifyResponse');
+          }
+        } catch (error) {
+          showError(`${error.message}`, 'mpesaVerifyResponse');
+        }
+      }
+
       async function rateOrder() {
         const token = document.getElementById("rateOrderToken").value || authToken;
         const orderId = document.getElementById("rateOrderId").value;
@@ -1989,11 +2065,16 @@ This prevents price manipulation and ensures data consistency.</pre>
         }
       }
 
-      // Add event listener for service type change
+      // Add event listeners for form changes
       document.addEventListener('DOMContentLoaded', function() {
         const serviceTypeSelect = document.getElementById("serviceType");
         if (serviceTypeSelect) {
           serviceTypeSelect.addEventListener('change', toggleDeliveryAddress);
+        }
+        
+        const paymentMethodSelect = document.getElementById("paymentMethod");
+        if (paymentMethodSelect) {
+          paymentMethodSelect.addEventListener('change', toggleMpesaPhoneField);
         }
       });
 
